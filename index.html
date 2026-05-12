@@ -3,962 +3,4403 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Анализ сравнения карточек WB</title>
+<title>Аналитика карточек WB</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-:root {
-  --bg: #f5f5f0;
-  --bg-card: #ffffff;
-  --text: #2c2c2a;
-  --text-muted: #5f5e5a;
-  --text-faded: #888780;
-  --border: #d3d1c7;
-  --primary: #185fa5;
-  --success: #3b6d11;
-  --success-bg: #eaf3de;
-  --warn: #ba7517;
-  --warn-bg: #faeeda;
-  --danger: #a32d2d;
-  --danger-bg: #fcebeb;
-  --info-bg: #e6f1fb;
-  --shadow: 0 2px 8px rgba(0,0,0,0.06);
-}
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: var(--bg);
-  color: var(--text);
+
+:root {
+  --bg-0: #0a0e1a;
+  --bg-1: #111726;
+  --bg-2: #1a2236;
+  --bg-3: #232d47;
+  --border: #2a3553;
+  --border-soft: #1f2942;
+  --text-1: #e8edf7;
+  --text-2: #a4b0cc;
+  --text-3: #6b7896;
+  --accent: #7c5cff;
+  --accent-2: #5eead4;
+  --good: #34d399;
+  --bad: #f87171;
+  --warn: #fbbf24;
+  --good-bg: rgba(52, 211, 153, 0.12);
+  --bad-bg: rgba(248, 113, 113, 0.12);
+  --good-bg-strong: rgba(52, 211, 153, 0.22);
+  --bad-bg-strong: rgba(248, 113, 113, 0.22);
+}
+
+html, body {
+  background: var(--bg-0);
+  color: var(--text-1);
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 14px;
   line-height: 1.5;
-  padding: 20px;
-}
-.container { max-width: 1400px; margin: 0 auto; }
-
-h1 { font-size: 24px; font-weight: 500; margin-bottom: 6px; }
-h2 { font-size: 18px; font-weight: 500; margin-bottom: 14px; color: var(--text); }
-h3 { font-size: 15px; font-weight: 500; margin-bottom: 10px; }
-.subtitle { color: var(--text-muted); margin-bottom: 24px; font-size: 14px; }
-
-/* Upload zone */
-.upload-zone {
-  background: var(--bg-card);
-  border: 2px dashed var(--border);
-  border-radius: 12px;
-  padding: 40px 24px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-bottom: 24px;
-}
-.upload-zone:hover, .upload-zone.dragover {
-  border-color: var(--primary);
-  background: var(--info-bg);
-}
-.upload-zone input { display: none; }
-.upload-icon { font-size: 32px; margin-bottom: 8px; }
-.upload-text { font-size: 16px; margin-bottom: 4px; }
-.upload-hint { font-size: 13px; color: var(--text-faded); }
-
-/* Cards */
-.card {
-  background: var(--bg-card);
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: var(--shadow);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
 }
 
-/* Period info */
-.period-bar {
+body {
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(124, 92, 255, 0.15), transparent 60%),
+    radial-gradient(900px 500px at 10% 110%, rgba(94, 234, 212, 0.08), transparent 60%),
+    var(--bg-0);
+  background-attachment: fixed;
+}
+
+.app {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 32px 28px 60px;
+}
+
+/* === HEADER === */
+.header {
   display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 28px;
   gap: 24px;
   flex-wrap: wrap;
-  font-size: 13px;
-  color: var(--text-muted);
 }
-.period-bar strong { color: var(--text); font-weight: 500; }
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.brand-logo {
+  width: 42px; height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #7c5cff 0%, #5eead4 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; color: #0a0e1a; font-size: 18px;
+  box-shadow: 0 0 30px rgba(124, 92, 255, 0.4);
+}
+.brand-text h1 {
+  font-size: 18px; font-weight: 700; letter-spacing: -0.01em;
+}
+.brand-text p {
+  font-size: 12px; color: var(--text-3); margin-top: 2px;
+}
 
-/* Cards grid */
-.cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 16px;
+.header-right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
 }
-.product-card {
+
+.upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--bg-2);
   border: 1px solid var(--border);
   border-radius: 10px;
-  padding: 12px;
-  background: var(--bg-card);
-  position: relative;
+  color: var(--text-1);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
   transition: all 0.2s;
 }
-.product-card.our {
-  border-color: var(--primary);
-  border-width: 2px;
-  background: var(--info-bg);
+.upload-btn:hover {
+  background: var(--bg-3);
+  border-color: var(--accent);
 }
-.product-card .badge {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: var(--primary);
-  color: white;
-  font-size: 11px;
-  padding: 3px 8px;
-  border-radius: 4px;
-  font-weight: 500;
-}
-.product-card img {
-  width: 100%;
-  height: 220px;
-  object-fit: contain;
-  background: #f8f7f4;
-  border-radius: 6px;
-  margin-bottom: 10px;
-}
-.product-card .img-fallback {
-  width: 100%; height: 220px;
-  display: flex; align-items: center; justify-content: center;
-  background: #f0efeb; border-radius: 6px; margin-bottom: 10px;
-  color: var(--text-faded); font-size: 13px;
-}
-.product-card .name {
-  font-size: 13px;
-  font-weight: 500;
-  margin-bottom: 6px;
-  min-height: 36px;
-  line-height: 1.3;
-}
-.product-card .art {
-  font-size: 11px;
-  color: var(--text-faded);
-  font-family: 'SF Mono', Monaco, monospace;
-  margin-bottom: 8px;
-}
-.product-card .price {
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--text);
-  margin-bottom: 4px;
-}
-.product-card .rating {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-.product-card a {
-  display: inline-block;
-  margin-top: 8px;
-  font-size: 12px;
-  color: var(--primary);
-  text-decoration: none;
-}
-.product-card a:hover { text-decoration: underline; }
 
-/* Verdict pills */
-.verdict-grid {
+/* === PERIOD INFO BAR === */
+.info-bar {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 10px;
-  margin-top: 12px;
-}
-.verdict-pill {
-  padding: 10px 12px;
-  border-radius: 8px;
-  font-size: 13px;
-}
-.verdict-pill .label { font-size: 11px; color: var(--text-faded); margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
-.verdict-pill .value { font-size: 18px; font-weight: 500; }
-.verdict-pill.danger { background: var(--danger-bg); color: var(--danger); }
-.verdict-pill.warn { background: var(--warn-bg); color: var(--warn); }
-.verdict-pill.success { background: var(--success-bg); color: var(--success); }
-.verdict-pill.info { background: var(--info-bg); color: var(--primary); }
-
-/* Metrics table */
-.metrics-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
-.metrics-table th, .metrics-table td {
-  padding: 10px 12px;
-  text-align: left;
-  border-bottom: 1px solid var(--border);
-}
-.metrics-table th {
-  background: #f8f7f4;
-  font-weight: 500;
-  color: var(--text-muted);
-  font-size: 12px;
-  position: sticky;
-  top: 0;
-}
-.metrics-table th.our { background: var(--info-bg); color: var(--primary); }
-.metrics-table td.our { background: #f8fafe; font-weight: 500; }
-.metrics-table td.metric-name { font-weight: 500; min-width: 220px; }
-.metrics-table .delta-bad { color: var(--danger); font-weight: 500; }
-.metrics-table .delta-good { color: var(--success); font-weight: 500; }
-.metrics-table .delta-neutral { color: var(--text-faded); }
-.metrics-table tr.row-bad { background: rgba(163, 45, 45, 0.04); }
-.metrics-table tr.row-bad td.metric-name { color: var(--danger); }
-
-/* Recommendations */
-.recommendations { display: flex; flex-direction: column; gap: 12px; }
-.reco-item {
-  padding: 14px 16px;
-  border-radius: 8px;
-  border-left: 4px solid var(--danger);
-  background: var(--danger-bg);
-}
-.reco-item.warn { border-left-color: var(--warn); background: var(--warn-bg); }
-.reco-item.info { border-left-color: var(--primary); background: var(--info-bg); }
-.reco-item .reco-title { font-weight: 500; margin-bottom: 4px; font-size: 14px; }
-.reco-item .reco-desc { font-size: 13px; color: var(--text-muted); }
-
-/* Search queries */
-.queries-section { margin-top: 16px; }
-.queries-tabs {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin-bottom: 14px;
-  border-bottom: 1px solid var(--border);
-}
-.queries-tab {
-  padding: 8px 14px;
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  cursor: pointer;
-  font-size: 13px;
-  color: var(--text-muted);
-  font-family: inherit;
-  margin-bottom: -1px;
-}
-.queries-tab.active {
-  color: var(--primary);
-  border-bottom-color: var(--primary);
-  font-weight: 500;
-}
-.queries-tab.our { color: var(--primary); font-weight: 500; }
-
-/* Stocks */
-.stocks-summary {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 12px;
-  margin-bottom: 16px;
+  background: var(--bg-1);
+  border: 1px solid var(--border-soft);
+  border-radius: 16px;
+  padding: 18px 22px;
+  margin-bottom: 24px;
 }
-.stock-tile {
-  padding: 14px;
-  background: #f8f7f4;
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.info-item .label {
+  font-size: 11px;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+.info-item .value {
+  font-size: 14px;
+  color: var(--text-1);
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* === PERIOD SWITCHER === */
+.period-switcher {
+  display: inline-flex;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 4px;
+  gap: 2px;
+}
+.period-btn {
+  padding: 8px 18px;
   border-radius: 8px;
-  border-left: 3px solid var(--primary);
+  background: transparent;
+  border: none;
+  color: var(--text-2);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s;
 }
-.stock-tile .art { font-size: 11px; color: var(--text-faded); font-family: 'SF Mono', monospace; }
-.stock-tile .total { font-size: 22px; font-weight: 500; margin: 4px 0; }
-.stock-tile .label { font-size: 12px; color: var(--text-muted); }
+.period-btn.active {
+  background: linear-gradient(135deg, #7c5cff 0%, #6d4dff 100%);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(124, 92, 255, 0.35);
+}
+.period-btn:hover:not(.active) {
+  color: var(--text-1);
+  background: var(--bg-3);
+}
 
-/* Hidden state */
-.hidden { display: none; }
-.error { padding: 16px; background: var(--danger-bg); color: var(--danger); border-radius: 8px; }
-.loader {
-  text-align: center;
-  padding: 40px;
-  color: var(--text-muted);
+/* === ARTICLES BAR === */
+.articles-bar {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 18px;
+  background: var(--bg-1);
+  border: 1px solid var(--border-soft);
+  border-radius: 16px;
+  margin-bottom: 28px;
+  scrollbar-width: thin;
 }
-.loader::after {
-  content: '...';
-  animation: dots 1.5s infinite;
+.article-card {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  min-width: 200px;
+  transition: all 0.2s;
 }
-@keyframes dots { 0%,20%{content:'.'} 40%{content:'..'} 60%,100%{content:'...'} }
+.article-card.our {
+  border-color: var(--accent-2);
+  background: linear-gradient(135deg, rgba(94, 234, 212, 0.08) 0%, var(--bg-2) 60%);
+  box-shadow: 0 0 0 1px rgba(94, 234, 212, 0.2);
+}
+.article-card:hover { transform: translateY(-2px); }
+.article-thumb {
+  width: 44px; height: 44px;
+  border-radius: 10px;
+  background: var(--bg-3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.article-meta {
+  display: flex; flex-direction: column;
+  min-width: 0;
+}
+.article-id {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--text-1);
+}
+.article-badge {
+  font-size: 10px;
+  color: var(--accent-2);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 2px;
+}
+.article-brand {
+  font-size: 11px;
+  color: var(--text-3);
+  margin-top: 2px;
+}
 
-/* Section header */
-.section-head {
+/* === SECTION === */
+.section {
+  background: var(--bg-1);
+  border: 1px solid var(--border-soft);
+  border-radius: 18px;
+  padding: 24px 26px;
+  margin-bottom: 24px;
+}
+.section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 14px;
+  margin-bottom: 18px;
+  gap: 16px;
   flex-wrap: wrap;
-  gap: 10px;
 }
-.section-head .desc {
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.section-title .dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent);
+}
+.section-title .dot.green { background: var(--good); box-shadow: 0 0 12px var(--good); }
+.section-title .dot.yellow { background: var(--warn); box-shadow: 0 0 12px var(--warn); }
+.section-subtitle {
+  font-size: 12px;
+  color: var(--text-3);
+  margin-top: 4px;
+}
+
+.legend {
+  display: flex; gap: 14px; align-items: center;
+  font-size: 11px;
+  color: var(--text-2);
+  flex-wrap: wrap;
+}
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.legend-chip {
+  width: 14px; height: 14px;
+  border-radius: 4px;
+}
+
+/* === MAIN TABLE === */
+.table-wrap {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid var(--border-soft);
+}
+table.metrics {
+  width: 100%;
+  border-collapse: collapse;
   font-size: 13px;
-  color: var(--text-muted);
+  min-width: 900px;
+}
+table.metrics th, table.metrics td {
+  padding: 12px 14px;
+  text-align: right;
+  border-bottom: 1px solid var(--border-soft);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+table.metrics th:first-child, table.metrics td:first-child {
+  text-align: left;
+  position: sticky;
+  left: 0;
+  background: var(--bg-1);
+  z-index: 2;
+  min-width: 240px;
+  white-space: normal;
+}
+table.metrics thead th {
+  background: var(--bg-2);
+  font-weight: 700;
+  font-size: 11px;
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+table.metrics thead th:first-child { z-index: 4; background: var(--bg-2); }
+table.metrics tbody tr:hover { background: rgba(124, 92, 255, 0.04); }
+table.metrics tbody tr:hover td:first-child { background: var(--bg-2); }
+
+.metric-name {
+  font-weight: 600;
+  color: var(--text-1);
+}
+.metric-name small {
+  display: block;
+  font-weight: 400;
+  font-size: 11px;
+  color: var(--text-3);
+  margin-top: 2px;
+}
+
+.cell-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  color: var(--text-1);
+}
+.cell-our {
+  background: linear-gradient(90deg, rgba(94, 234, 212, 0.08), transparent);
+}
+.cell-our .cell-value {
+  color: var(--accent-2);
+  font-weight: 700;
+}
+
+.diff {
+  display: inline-block;
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 5px;
+  margin-left: 6px;
+}
+.diff.good { background: var(--good-bg); color: var(--good); }
+.diff.bad { background: var(--bad-bg); color: var(--bad); }
+.diff.neutral { background: var(--bg-3); color: var(--text-3); }
+
+.cell-good { background: var(--good-bg); }
+.cell-bad { background: var(--bad-bg); }
+.cell-best { box-shadow: inset 0 0 0 1px var(--good); }
+
+.row-section {
+  background: linear-gradient(90deg, var(--bg-2), transparent);
+}
+.row-section td {
+  font-size: 11px !important;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700 !important;
+  color: var(--accent) !important;
+  padding: 14px !important;
+}
+
+/* === INPUT EDITABLE === */
+.editable {
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  color: var(--text-1);
+  border-radius: 6px;
+  padding: 4px 8px;
+  width: 70px;
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  font-size: 12px;
+}
+.editable:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(124, 92, 255, 0.25);
+}
+
+/* === SCORE BAR === */
+.score-row td {
+  border-top: 2px solid var(--accent);
+  background: linear-gradient(135deg, rgba(124, 92, 255, 0.08), rgba(94, 234, 212, 0.04));
+}
+.score-row td:first-child {
+  background: var(--bg-2);
+  font-weight: 800 !important;
+  color: var(--text-1) !important;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+}
+.score-cell {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 800;
+  font-size: 15px;
+}
+
+/* === WAREHOUSE === */
+.warehouse-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+@media (max-width: 1024px) {
+  .warehouse-grid { grid-template-columns: 1fr; }
+}
+
+.top-warehouses {
+  background: var(--bg-2);
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  padding: 18px;
+}
+.top-warehouses h3 {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 14px;
+  color: var(--text-1);
+}
+.wh-bar {
+  display: grid;
+  grid-template-columns: 22px 1fr 70px;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  font-size: 12px;
+}
+.wh-rank {
+  color: var(--text-3);
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  text-align: right;
+}
+.wh-bar-bg {
+  position: relative;
+  height: 26px;
+  background: var(--bg-3);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.wh-bar-fill {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  background: linear-gradient(90deg, #5eead4, #34d399);
+  border-radius: 6px;
+  transition: width 0.5s ease;
+}
+.wh-bar-label {
+  position: absolute;
+  left: 10px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  font-weight: 600;
+  color: #0a0e1a;
+  z-index: 1;
+}
+.wh-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--text-1);
+}
+
+.stock-table {
+  background: var(--bg-2);
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.stock-table h3 {
+  padding: 14px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  border-bottom: 1px solid var(--border-soft);
+}
+.stock-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.stock-table th {
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-3);
+  font-weight: 700;
+  border-bottom: 1px solid var(--border-soft);
+}
+.stock-table td {
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.stock-table td.num {
+  text-align: right;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+}
+.stock-table tr:last-child td { border-bottom: none; }
+.days-low { color: var(--bad); }
+.days-mid { color: var(--warn); }
+.days-good { color: var(--good); }
+
+/* === QUERIES === */
+.queries-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.qtab {
+  padding: 8px 14px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-2);
+  cursor: pointer;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+.qtab.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.qtab:hover:not(.active) { background: var(--bg-3); }
+
+table.queries {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+table.queries th, table.queries td {
+  padding: 10px 12px;
+  text-align: right;
+  border-bottom: 1px solid var(--border-soft);
+}
+table.queries th {
+  background: var(--bg-2);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-3);
+  font-weight: 700;
+}
+table.queries th:first-child, table.queries td:first-child {
+  text-align: left;
+}
+.query-text {
+  font-weight: 600;
+  color: var(--text-1);
+}
+.spark {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 22px;
+}
+.spark span {
+  width: 4px;
+  background: var(--accent);
+  border-radius: 1px;
+  opacity: 0.7;
+}
+
+/* === DROP ZONE === */
+.dropzone {
+  background: var(--bg-1);
+  border: 2px dashed var(--border);
+  border-radius: 16px;
+  padding: 50px 30px;
+  text-align: center;
+  margin-bottom: 24px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.dropzone:hover, .dropzone.drag {
+  border-color: var(--accent);
+  background: var(--bg-2);
+}
+.dropzone-icon { font-size: 36px; margin-bottom: 10px; }
+.dropzone p { color: var(--text-2); font-size: 13px; }
+.dropzone strong { color: var(--text-1); }
+
+/* === SCROLLBAR === */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--bg-1); }
+::-webkit-scrollbar-thumb { background: var(--bg-3); border-radius: 5px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border); }
+
+/* === FOOTER === */
+.footer {
+  text-align: center;
+  margin-top: 40px;
+  color: var(--text-3);
+  font-size: 11px;
 }
 
 @media (max-width: 768px) {
-  .product-card img, .product-card .img-fallback { height: 180px; }
-  .metrics-table { font-size: 12px; }
-  .metrics-table th, .metrics-table td { padding: 8px; }
+  .app { padding: 18px 14px; }
+  .section { padding: 18px 16px; border-radius: 14px; }
+  .header { flex-direction: column; }
 }
 </style>
 </head>
 <body>
-<div class="container">
-  <h1>Анализ сравнения карточек WB</h1>
-  <p class="subtitle">Загрузите .xlsx из отчёта Wildberries «Сравнение карточек» — получите визуальный разбор с подсветкой слабых мест и рекомендациями.</p>
+<div class="app">
 
-  <label class="upload-zone" id="dropZone">
-    <input type="file" id="fileInput" accept=".xlsx,.xls">
-    <div class="upload-icon">📊</div>
-    <div class="upload-text">Перетащите .xlsx или нажмите для выбора</div>
-    <div class="upload-hint">Файл обрабатывается локально в браузере. Никуда не отправляется.</div>
-  </label>
+  <!-- HEADER -->
+  <div class="header">
+    <div class="brand">
+      <div class="brand-logo">А</div>
+      <div class="brand-text">
+        <h1>Аналитика карточек WB</h1>
+        <p>Сравнение и точки роста</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="period-switcher" id="periodSwitcher">
+        <button class="period-btn active" data-period="current">Текущий период</button>
+        <button class="period-btn" data-period="prev">Предыдущий</button>
+      </div>
+      <label class="upload-btn">
+        <span>📂</span>
+        <span>Загрузить новый xlsx</span>
+        <input type="file" id="fileInput" accept=".xlsx" style="display:none">
+      </label>
+    </div>
+  </div>
 
-  <div id="status"></div>
-  <div id="results" class="hidden"></div>
+  <!-- INFO BAR -->
+  <div class="info-bar" id="infoBar"></div>
+
+  <!-- ARTICLES BAR -->
+  <div class="articles-bar" id="articlesBar"></div>
+
+  <!-- MAIN TABLE -->
+  <div class="section">
+    <div class="section-header">
+      <div>
+        <div class="section-title"><span class="dot"></span>Сравнение показателей</div>
+        <div class="section-subtitle">Цвет ячейки показывает, где мы проигрываем (красный) или выигрываем (зелёный). Лучший показатель в строке обведён.</div>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-chip" style="background:var(--good-bg-strong)"></div>Мы лучше</div>
+        <div class="legend-item"><div class="legend-chip" style="background:var(--bad-bg-strong)"></div>Точка роста</div>
+        <div class="legend-item"><div class="legend-chip" style="box-shadow:inset 0 0 0 2px var(--good)"></div>Лучший в строке</div>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="metrics" id="metricsTable"></table>
+    </div>
+  </div>
+
+  <!-- WAREHOUSES -->
+  <div class="section">
+    <div class="section-header">
+      <div>
+        <div class="section-title"><span class="dot green"></span>Склады и регионы</div>
+        <div class="section-subtitle">Скорость продаж и распределение остатков по складам Wildberries</div>
+      </div>
+    </div>
+    <div class="warehouse-grid">
+      <div class="top-warehouses">
+        <h3>ТОП-10 складов по скорости продаж нашего артикула</h3>
+        <div id="topWarehouses"></div>
+      </div>
+      <div class="stock-table">
+        <h3>Остатки нашего артикула</h3>
+        <div style="overflow-x:auto;max-height:420px;overflow-y:auto">
+          <table>
+            <thead>
+              <tr>
+                <th>Склад</th>
+                <th style="text-align:right">Остаток</th>
+                <th style="text-align:right">Ср./день</th>
+                <th style="text-align:right">Запас, дн.</th>
+              </tr>
+            </thead>
+            <tbody id="stockBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUERIES -->
+  <div class="section">
+    <div class="section-header">
+      <div>
+        <div class="section-title"><span class="dot yellow"></span>Поисковые запросы</div>
+        <div class="section-subtitle">Запросы с заказами по нашему артикулу и у конкурентов</div>
+      </div>
+    </div>
+    <div class="queries-tabs" id="queriesTabs"></div>
+    <div style="overflow-x:auto">
+      <table class="queries" id="queriesTable"></table>
+    </div>
+  </div>
+
+  <div class="footer">Данные из отчёта Wildberries «Сравнение карточек» · обрабатывается локально в браузере</div>
 </div>
 
 <script>
-// =====================================================
-// WB IMAGE URL — пробуем найти рабочий basket-сервер
-// =====================================================
-function buildWbImageUrls(nm) {
-  nm = parseInt(nm);
-  const vol = Math.floor(nm / 100000);
-  const part = Math.floor(nm / 1000);
-  const baskets = ['01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27'];
-  return baskets.map(b => `https://basket-${b}.wbbasket.ru/vol${vol}/part${part}/${nm}/images/big/1.webp`);
-}
-
-function loadProductImage(imgEl, fallbackEl, nm) {
-  const urls = buildWbImageUrls(nm);
-  let i = 0;
-  const tryNext = () => {
-    if (i >= urls.length) {
-      imgEl.style.display = 'none';
-      fallbackEl.style.display = 'flex';
-      fallbackEl.textContent = 'Фото не найдено';
-      return;
+/* === EMBEDDED DATA === */
+const EMBEDDED_DATA = {
+  "info": {
+    "Выбранный период": "С 2026-04-13 по 2026-05-12",
+    "Предыдущий период": "С 2026-03-14 по 2026-04-12",
+    "Выбранная номенклатура 1": "224011927",
+    "Выбранная номенклатура 2": "443855202",
+    "Выбранная номенклатура 3": "410438249",
+    "Выбранная номенклатура 4": "220354170",
+    "Выбранная номенклатура 5": "158827292"
+  },
+  "metrics": [
+    {
+      "name": "Название",
+      "current": {
+        "224011927": "Пляжный коврик подстилка для пикника",
+        "443855202": "Пляжное покрывало микрофибра 180*150 см",
+        "410438249": "Пляжный складной коврик сумка 200х200",
+        "220354170": "Пляжный коврик-сумка складной 200х200",
+        "158827292": "Пляжный коврик с колышками большой для гальки 200х200 см"
+      },
+      "prev": {
+        "224011927": "-",
+        "443855202": "-",
+        "410438249": "-",
+        "220354170": "-",
+        "158827292": "-"
+      }
+    },
+    {
+      "name": "Категория",
+      "current": {
+        "224011927": "Товары для отдыха и кемпинга",
+        "443855202": "Товары для отдыха и кемпинга",
+        "410438249": "Товары для отдыха и кемпинга",
+        "220354170": "Товары для отдыха и кемпинга",
+        "158827292": "Товары для отдыха и кемпинга"
+      },
+      "prev": {
+        "224011927": "-",
+        "443855202": "-",
+        "410438249": "-",
+        "220354170": "-",
+        "158827292": "-"
+      }
+    },
+    {
+      "name": "Предмет",
+      "current": {
+        "224011927": "Коврики пляжные",
+        "443855202": "Коврики пляжные",
+        "410438249": "Коврики пляжные",
+        "220354170": "Коврики пляжные",
+        "158827292": "Коврики пляжные"
+      },
+      "prev": {
+        "224011927": "-",
+        "443855202": "-",
+        "410438249": "-",
+        "220354170": "-",
+        "158827292": "-"
+      }
+    },
+    {
+      "name": "Бренд",
+      "current": {
+        "224011927": "",
+        "443855202": "MarkForMe",
+        "410438249": "",
+        "220354170": "G&O Home",
+        "158827292": "Sea Enjoy"
+      },
+      "prev": {
+        "224011927": "-",
+        "443855202": "-",
+        "410438249": "-",
+        "220354170": "-",
+        "158827292": "-"
+      }
+    },
+    {
+      "name": "Рейтинг карточки",
+      "current": {
+        "224011927": 10,
+        "443855202": 10,
+        "410438249": 10,
+        "220354170": 10,
+        "158827292": 10
+      },
+      "prev": {
+        "224011927": "-",
+        "443855202": "-",
+        "410438249": "-",
+        "220354170": "-",
+        "158827292": "-"
+      }
+    },
+    {
+      "name": "Рейтинг по отзывам",
+      "current": {
+        "224011927": 5,
+        "443855202": 4.9,
+        "410438249": 4.9,
+        "220354170": 4.9,
+        "158827292": 4.9
+      },
+      "prev": {
+        "224011927": "-",
+        "443855202": "-",
+        "410438249": "-",
+        "220354170": "-",
+        "158827292": "-"
+      }
+    },
+    {
+      "name": "Количество отзывов",
+      "current": {
+        "224011927": 1128,
+        "443855202": 34,
+        "410438249": 258,
+        "220354170": 1594,
+        "158827292": 2272
+      },
+      "prev": {
+        "224011927": 1104,
+        "443855202": 29,
+        "410438249": 236,
+        "220354170": 1564,
+        "158827292": 2231
+      }
+    },
+    {
+      "name": "Минимальная цена со скидкой (по размерам), ₽",
+      "current": {
+        "224011927": 2300,
+        "443855202": 1688,
+        "410438249": 2376,
+        "220354170": 2464,
+        "158827292": 2140
+      },
+      "prev": {
+        "224011927": "-",
+        "443855202": "-",
+        "410438249": "-",
+        "220354170": "-",
+        "158827292": "-"
+      }
+    },
+    {
+      "name": "Максимальная цена со скидкой (по размерам), ₽",
+      "current": {
+        "224011927": 2300,
+        "443855202": 1688,
+        "410438249": 2376,
+        "220354170": 2464,
+        "158827292": 2140
+      },
+      "prev": {
+        "224011927": "-",
+        "443855202": "-",
+        "410438249": "-",
+        "220354170": "-",
+        "158827292": "-"
+      }
+    },
+    {
+      "name": "Медианная цена покупателя, ₽",
+      "current": {
+        "224011927": 2300,
+        "443855202": 1730,
+        "410438249": 2166,
+        "220354170": 2464,
+        "158827292": 2088
+      },
+      "prev": {
+        "224011927": "-",
+        "443855202": "-",
+        "410438249": "-",
+        "220354170": "-",
+        "158827292": "-"
+      }
+    },
+    {
+      "name": "Среднее время доставки",
+      "current": {
+        "224011927": "1д 15ч",
+        "443855202": "1д 9ч",
+        "410438249": "1д 15ч",
+        "220354170": "2д 1ч",
+        "158827292": "1д 19ч"
+      },
+      "prev": {
+        "224011927": "1д 21ч",
+        "443855202": "1д 21ч",
+        "410438249": "1д 11ч",
+        "220354170": "2д 14ч",
+        "158827292": "2д 1ч"
+      }
+    },
+    {
+      "name": "Средняя позиция",
+      "current": {
+        "224011927": 10,
+        "443855202": 40,
+        "410438249": 35,
+        "220354170": 27,
+        "158827292": 17
+      },
+      "prev": {
+        "224011927": 6,
+        "443855202": 25,
+        "410438249": 26,
+        "220354170": 20,
+        "158827292": 18
+      }
+    },
+    {
+      "name": "Показы",
+      "current": {
+        "224011927": 136085,
+        "443855202": 17297,
+        "410438249": 175319,
+        "220354170": 372776,
+        "158827292": 140641
+      },
+      "prev": {
+        "224011927": 155363,
+        "443855202": 25724,
+        "410438249": 145229,
+        "220354170": 367960,
+        "158827292": 108571
+      }
+    },
+    {
+      "name": "Переход в карточку, шт",
+      "current": {
+        "224011927": 5216,
+        "443855202": 2038,
+        "410438249": 8491,
+        "220354170": 10804,
+        "158827292": 9884
+      },
+      "prev": {
+        "224011927": 6951,
+        "443855202": 2602,
+        "410438249": 6374,
+        "220354170": 8797,
+        "158827292": 6972
+      }
+    },
+    {
+      "name": "CTR",
+      "current": {
+        "224011927": 4,
+        "443855202": 12,
+        "410438249": 5,
+        "220354170": 3,
+        "158827292": 7
+      },
+      "prev": {
+        "224011927": 4,
+        "443855202": 10,
+        "410438249": 4,
+        "220354170": 2,
+        "158827292": 6
+      }
+    },
+    {
+      "name": "Добавления в корзину, шт",
+      "current": {
+        "224011927": 659,
+        "443855202": 150,
+        "410438249": 1085,
+        "220354170": 1218,
+        "158827292": 1030
+      },
+      "prev": {
+        "224011927": 1060,
+        "443855202": 203,
+        "410438249": 843,
+        "220354170": 1082,
+        "158827292": 561
+      }
+    },
+    {
+      "name": "Конверсия в корзину, %",
+      "current": {
+        "224011927": 13,
+        "443855202": 7,
+        "410438249": 13,
+        "220354170": 11,
+        "158827292": 10
+      },
+      "prev": {
+        "224011927": 15,
+        "443855202": 8,
+        "410438249": 13,
+        "220354170": 12,
+        "158827292": 8
+      }
+    },
+    {
+      "name": "Заказы, шт",
+      "current": {
+        "224011927": 120,
+        "443855202": 24,
+        "410438249": 192,
+        "220354170": 182,
+        "158827292": 247
+      },
+      "prev": {
+        "224011927": 192,
+        "443855202": 38,
+        "410438249": 142,
+        "220354170": 122,
+        "158827292": 115
+      }
+    },
+    {
+      "name": "Конверсия в заказ, %",
+      "current": {
+        "224011927": 18,
+        "443855202": 16,
+        "410438249": 18,
+        "220354170": 15,
+        "158827292": 24
+      },
+      "prev": {
+        "224011927": 18,
+        "443855202": 19,
+        "410438249": 17,
+        "220354170": 11,
+        "158827292": 20
+      }
+    },
+    {
+      "name": "Выкупы, шт",
+      "current": {
+        "224011927": 117,
+        "443855202": 26,
+        "410438249": 149,
+        "220354170": 116,
+        "158827292": 169
+      },
+      "prev": {
+        "224011927": 156,
+        "443855202": 29,
+        "410438249": 110,
+        "220354170": 89,
+        "158827292": 88
+      }
+    },
+    {
+      "name": "Процент выкупа",
+      "current": {
+        "224011927": 83,
+        "443855202": 93,
+        "410438249": 80,
+        "220354170": 75,
+        "158827292": 82
+      },
+      "prev": {
+        "224011927": 88,
+        "443855202": 81,
+        "410438249": 82,
+        "220354170": 77,
+        "158827292": 80
+      }
+    },
+    {
+      "name": "Отмены, шт",
+      "current": {
+        "224011927": 24,
+        "443855202": 2,
+        "410438249": 37,
+        "220354170": 39,
+        "158827292": 36
+      },
+      "prev": {
+        "224011927": 22,
+        "443855202": 7,
+        "410438249": 24,
+        "220354170": 27,
+        "158827292": 22
+      }
     }
-    imgEl.src = urls[i++];
-  };
-  imgEl.onerror = tryNext;
-  imgEl.onload = () => { fallbackEl.style.display = 'none'; imgEl.style.display = 'block'; };
-  tryNext();
-}
+  ],
+  "queries_all": [
+    {
+      "query": "пляжный коврик",
+      "count_cur": 9955,
+      "count_prev": 6849,
+      "cart_cur": {
+        "224011927": 12,
+        "443855202": 6,
+        "410438249": 12,
+        "220354170": 11,
+        "158827292": 8
+      },
+      "cart_prev": {
+        "224011927": 17,
+        "443855202": 8,
+        "410438249": 7,
+        "220354170": 10,
+        "158827292": 13
+      },
+      "order_cur": {
+        "224011927": 20,
+        "443855202": 0,
+        "410438249": 20,
+        "220354170": 0,
+        "158827292": 22
+      },
+      "order_prev": {
+        "224011927": 12,
+        "443855202": 25,
+        "410438249": 50,
+        "220354170": 7,
+        "158827292": 21
+      }
+    },
+    {
+      "query": "коврик для пляжа",
+      "count_cur": 6555,
+      "count_prev": 4311,
+      "cart_cur": {
+        "224011927": 15,
+        "443855202": 2,
+        "410438249": 7,
+        "220354170": 14,
+        "158827292": 11
+      },
+      "cart_prev": {
+        "224011927": 15,
+        "443855202": 13,
+        "410438249": 13,
+        "220354170": 14,
+        "158827292": 6
+      },
+      "order_cur": {
+        "224011927": 5,
+        "443855202": 100,
+        "410438249": 33,
+        "220354170": 17,
+        "158827292": 45
+      },
+      "order_prev": {
+        "224011927": 19,
+        "443855202": 0,
+        "410438249": 14,
+        "220354170": 18,
+        "158827292": 11
+      }
+    },
+    {
+      "query": "подстилка на пляж",
+      "count_cur": 2731,
+      "count_prev": 1202,
+      "cart_cur": {
+        "224011927": 10,
+        "443855202": 14,
+        "410438249": 7,
+        "220354170": 10,
+        "158827292": 22
+      },
+      "cart_prev": {
+        "224011927": 23,
+        "443855202": 33,
+        "410438249": 0,
+        "220354170": 20,
+        "158827292": 0
+      },
+      "order_cur": {
+        "224011927": 0,
+        "443855202": 50,
+        "410438249": 100,
+        "220354170": 40,
+        "158827292": 29
+      },
+      "order_prev": {
+        "224011927": 11,
+        "443855202": 0,
+        "410438249": 0,
+        "220354170": 0,
+        "158827292": 0
+      }
+    },
+    {
+      "query": "покрывало для пляжа",
+      "count_cur": 1959,
+      "count_prev": 1362,
+      "cart_cur": {
+        "224011927": 14,
+        "443855202": 5,
+        "410438249": 33,
+        "220354170": 17,
+        "158827292": 19
+      },
+      "cart_prev": {
+        "224011927": 24,
+        "443855202": 11,
+        "410438249": 0,
+        "220354170": 19,
+        "158827292": 0
+      },
+      "order_cur": {
+        "224011927": 27,
+        "443855202": 0,
+        "410438249": 0,
+        "220354170": 0,
+        "158827292": 15
+      },
+      "order_prev": {
+        "224011927": 4,
+        "443855202": 11,
+        "410438249": 0,
+        "220354170": 33,
+        "158827292": 0
+      }
+    }
+  ],
+  "queries_by_article": {
+    "158827292": [
+      {
+        "query": "коврик для пикника непромокаемый",
+        "count_cur": 1332,
+        "count_prev": 753,
+        "cart_cur": 7,
+        "cart_prev": 19,
+        "order_cur": 0,
+        "order_prev": 20
+      },
+      {
+        "query": "коврик для пляжа и пикника",
+        "count_cur": 757,
+        "count_prev": 338,
+        "cart_cur": 10,
+        "cart_prev": 0,
+        "order_cur": 50,
+        "order_prev": 0
+      },
+      {
+        "query": "лежанка для пляжа",
+        "count_cur": 743,
+        "count_prev": 479,
+        "cart_cur": 4,
+        "cart_prev": 19,
+        "order_cur": 100,
+        "order_prev": 20
+      },
+      {
+        "query": "пляжный набор",
+        "count_cur": 414,
+        "count_prev": 277,
+        "cart_cur": 12,
+        "cart_prev": 20,
+        "order_cur": 25,
+        "order_prev": 0
+      },
+      {
+        "query": "плед для пикника непромокаемый складной",
+        "count_cur": 336,
+        "count_prev": 401,
+        "cart_cur": 5,
+        "cart_prev": 13,
+        "order_cur": 0,
+        "order_prev": 50
+      },
+      {
+        "query": "пляжная подстилка для песка",
+        "count_cur": 324,
+        "count_prev": 354,
+        "cart_cur": 5,
+        "cart_prev": 16,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "покрывало на пляж галька",
+        "count_cur": 313,
+        "count_prev": 218,
+        "cart_cur": 10,
+        "cart_prev": 6,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "коврик для загара",
+        "count_cur": 271,
+        "count_prev": 102,
+        "cart_cur": 20,
+        "cart_prev": 0,
+        "order_cur": 50,
+        "order_prev": 0
+      },
+      {
+        "query": "лежак для пляжа складной для гальки",
+        "count_cur": 267,
+        "count_prev": 128,
+        "cart_cur": 9,
+        "cart_prev": 0,
+        "order_cur": 50,
+        "order_prev": 0
+      },
+      {
+        "query": "покрывало для пляжа галька",
+        "count_cur": 256,
+        "count_prev": 153,
+        "cart_cur": 11,
+        "cart_prev": 11,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "лежанка для пляжа складная для гальки",
+        "count_cur": 247,
+        "count_prev": 138,
+        "cart_cur": 16,
+        "cart_prev": 13,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "пляжный коврик для гальки толстый",
+        "count_cur": 247,
+        "count_prev": 131,
+        "cart_cur": 11,
+        "cart_prev": 11,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "плед пляжный непромокаемый",
+        "count_cur": 241,
+        "count_prev": 106,
+        "cart_cur": 24,
+        "cart_prev": 0,
+        "order_cur": 22,
+        "order_prev": 0
+      },
+      {
+        "query": "плед пляжный на море",
+        "count_cur": 240,
+        "count_prev": 212,
+        "cart_cur": 29,
+        "cart_prev": 15,
+        "order_cur": 25,
+        "order_prev": 0
+      },
+      {
+        "query": "лежак для пляжа мягкий",
+        "count_cur": 193,
+        "count_prev": 204,
+        "cart_cur": 11,
+        "cart_prev": 0,
+        "order_cur": 50,
+        "order_prev": 0
+      },
+      {
+        "query": "покрывало на пляж песок большое",
+        "count_cur": 183,
+        "count_prev": 43,
+        "cart_cur": 7,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "плед для пляжа 200*200",
+        "count_cur": 173,
+        "count_prev": 30,
+        "cart_cur": 13,
+        "cart_prev": 0,
+        "order_cur": 50,
+        "order_prev": 0
+      },
+      {
+        "query": "коврик пляжный для гальки толстый 200*200",
+        "count_cur": 159,
+        "count_prev": 44,
+        "cart_cur": 8,
+        "cart_prev": 0,
+        "order_cur": 33,
+        "order_prev": 0
+      },
+      {
+        "query": "коврик на море для гальки",
+        "count_cur": 154,
+        "count_prev": 102,
+        "cart_cur": 15,
+        "cart_prev": 13,
+        "order_cur": 50,
+        "order_prev": 0
+      },
+      {
+        "query": "коврик на пляж для гальки",
+        "count_cur": 136,
+        "count_prev": 189,
+        "cart_cur": 100,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "коврик пляжный для гальки складной",
+        "count_cur": 136,
+        "count_prev": 100,
+        "cart_cur": 0,
+        "cart_prev": 11,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "коврик для загара на пляже галька",
+        "count_cur": 126,
+        "count_prev": 48,
+        "cart_cur": 20,
+        "cart_prev": 9,
+        "order_cur": 50,
+        "order_prev": 0
+      },
+      {
+        "query": "для пляжа лежанка",
+        "count_cur": 124,
+        "count_prev": 88,
+        "cart_cur": 8,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "коврик для пикника 200*200 толстый",
+        "count_cur": 112,
+        "count_prev": 42,
+        "cart_cur": 9,
+        "cart_prev": 14,
+        "order_cur": 33,
+        "order_prev": 50
+      },
+      {
+        "query": "лежак для пляжа складной мягкий",
+        "count_cur": 112,
+        "count_prev": 48,
+        "cart_cur": 8,
+        "cart_prev": 20,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "пляжная лежанка для гальки",
+        "count_cur": 104,
+        "count_prev": 80,
+        "cart_cur": 12,
+        "cart_prev": 40,
+        "order_cur": 50,
+        "order_prev": 0
+      },
+      {
+        "query": "коврик для пляжа толстый для гальки",
+        "count_cur": 102,
+        "count_prev": 51,
+        "cart_cur": 0,
+        "cart_prev": 13,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "плед на пляж непромокаемый",
+        "count_cur": 84,
+        "count_prev": 15,
+        "cart_cur": 40,
+        "cart_prev": 0,
+        "order_cur": 50,
+        "order_prev": 0
+      },
+      {
+        "query": "лежаки для пляжа для гальки",
+        "count_cur": 81,
+        "count_prev": 74,
+        "cart_cur": 8,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "покрывало пляжное для гальки мягкое",
+        "count_cur": 77,
+        "count_prev": 68,
+        "cart_cur": 0,
+        "cart_prev": 25,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "пляжный коврик для песка большой",
+        "count_cur": 73,
+        "count_prev": 19,
+        "cart_cur": 10,
+        "cart_prev": 0,
+        "order_cur": 50,
+        "order_prev": 0
+      },
+      {
+        "query": "на пляж подстилка для гальки",
+        "count_cur": 72,
+        "count_prev": 45,
+        "cart_cur": 50,
+        "cart_prev": 0,
+        "order_cur": 0,
+        "order_prev": 0
+      },
+      {
+        "query": "коврик для пикника и пляжа",
+        "count_cur": 66,
+        "count_prev": 42,
+        "cart_cur": 0,
+        "cart_prev": 33,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "пляжная циновка",
+        "count_cur": 64,
+        "count_prev": 45,
+        "cart_cur": 33,
+        "cart_prev": 20,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "пляжная лежанка мягкая",
+        "count_cur": 55,
+        "count_prev": 22,
+        "cart_cur": 50,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "лежак для пляжа мягкий для гальки",
+        "count_cur": 54,
+        "count_prev": 212,
+        "cart_cur": 0,
+        "cart_prev": 14,
+        "order_cur": 0,
+        "order_prev": 0
+      },
+      {
+        "query": "пляжный коврик 200х200 для гальки толстый",
+        "count_cur": 53,
+        "count_prev": 29,
+        "cart_cur": 22,
+        "cart_prev": 0,
+        "order_cur": 50,
+        "order_prev": 0
+      },
+      {
+        "query": "коврик для пляжа 200*200 для гальки толстый",
+        "count_cur": 52,
+        "count_prev": 69,
+        "cart_cur": 12,
+        "cart_prev": 4,
+        "order_cur": 50,
+        "order_prev": 0
+      },
+      {
+        "query": "подстилка на море для гальки",
+        "count_cur": 52,
+        "count_prev": 49,
+        "cart_cur": 50,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "покрывало для гальки",
+        "count_cur": 41,
+        "count_prev": 26,
+        "cart_cur": 50,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "коврик туристический 200*200 толстый",
+        "count_cur": 36,
+        "count_prev": 28,
+        "cart_cur": 14,
+        "cart_prev": 20,
+        "order_cur": 200,
+        "order_prev": 0
+      },
+      {
+        "query": "пляжная сумка подстилка",
+        "count_cur": 35,
+        "count_prev": 26,
+        "cart_cur": 33,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "лежак мягкий пляжный",
+        "count_cur": 32,
+        "count_prev": 29,
+        "cart_cur": 25,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "пляжный коврик для песка 200*200",
+        "count_cur": 31,
+        "count_prev": 47,
+        "cart_cur": 0,
+        "cart_prev": 9,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "пляжный коврик большой для гальки",
+        "count_cur": 29,
+        "count_prev": 24,
+        "cart_cur": 0,
+        "cart_prev": 33,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "подстилка для пляжа 200*200",
+        "count_cur": 28,
+        "count_prev": 23,
+        "cart_cur": 17,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "коврик для пляжа для гальки",
+        "count_cur": 26,
+        "count_prev": 18,
+        "cart_cur": 50,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "подложка на пляж",
+        "count_cur": 25,
+        "count_prev": 19,
+        "cart_cur": 20,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "158827292",
+        "count_cur": 19,
+        "count_prev": 9,
+        "cart_cur": 22,
+        "cart_prev": 27,
+        "order_cur": 67,
+        "order_prev": 75
+      },
+      {
+        "query": "лежанка доя пляжа",
+        "count_cur": 9,
+        "count_prev": 5,
+        "cart_cur": 33,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "коврик для пляжа 200*200 с колышками",
+        "count_cur": 6,
+        "count_prev": 2,
+        "cart_cur": 8,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "коврик для пляжа пикника",
+        "count_cur": 6,
+        "count_prev": 5,
+        "cart_cur": 25,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "874649052",
+        "count_cur": 4,
+        "count_prev": 0,
+        "cart_cur": 100,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "коарик пляжный",
+        "count_cur": 3,
+        "count_prev": 3,
+        "cart_cur": 0,
+        "cart_prev": 33,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "коврик для пляжа на море для гальки и песка",
+        "count_cur": 3,
+        "count_prev": 1,
+        "cart_cur": 50,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "набор пляжной",
+        "count_cur": 2,
+        "count_prev": 1,
+        "cart_cur": 50,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "плед пляжный непромокаемый 200",
+        "count_cur": 2,
+        "count_prev": 0,
+        "cart_cur": 67,
+        "cart_prev": 0,
+        "order_cur": 50,
+        "order_prev": 0
+      },
+      {
+        "query": "коарикилля гальки",
+        "count_cur": 1,
+        "count_prev": 0,
+        "cart_cur": 50,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "коврик для пикника 200х200 стирать в машине",
+        "count_cur": 1,
+        "count_prev": 0,
+        "cart_cur": 50,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "коврик для пляжа гальки 200x200",
+        "count_cur": 1,
+        "count_prev": 0,
+        "cart_cur": 100,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "коврик пляжный для гальки толстый с колышками",
+        "count_cur": 1,
+        "count_prev": 0,
+        "cart_cur": 100,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "плед для о пляжа",
+        "count_cur": 1,
+        "count_prev": 0,
+        "cart_cur": 17,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "циновку на пляж",
+        "count_cur": 1,
+        "count_prev": 0,
+        "cart_cur": 17,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "коврик для пляжа и пикника 200х200",
+        "count_cur": 0,
+        "count_prev": 0,
+        "cart_cur": 0,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "пляжный коврик большой для гальки 300/300",
+        "count_cur": 0,
+        "count_prev": 1,
+        "cart_cur": 0,
+        "cart_prev": 50,
+        "order_cur": 0,
+        "order_prev": 100
+      }
+    ],
+    "224011927": [
+      {
+        "query": "туристический коврик",
+        "count_cur": 5435,
+        "count_prev": 4260,
+        "cart_cur": 17,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "коврик на пляж",
+        "count_cur": 964,
+        "count_prev": 623,
+        "cart_cur": 17,
+        "cart_prev": 7,
+        "order_cur": 25,
+        "order_prev": 0
+      },
+      {
+        "query": "коврик для природы",
+        "count_cur": 296,
+        "count_prev": 164,
+        "cart_cur": 17,
+        "cart_prev": 0,
+        "order_cur": 50,
+        "order_prev": 0
+      },
+      {
+        "query": "коврики для пляжа",
+        "count_cur": 254,
+        "count_prev": 210,
+        "cart_cur": 33,
+        "cart_prev": 22,
+        "order_cur": 0,
+        "order_prev": 20
+      },
+      {
+        "query": "подстилка для пляжа на море",
+        "count_cur": 147,
+        "count_prev": 180,
+        "cart_cur": 0,
+        "cart_prev": 33,
+        "order_cur": 0,
+        "order_prev": 25
+      },
+      {
+        "query": "коврик для моря пляжный",
+        "count_cur": 142,
+        "count_prev": 149,
+        "cart_cur": 44,
+        "cart_prev": 30,
+        "order_cur": 25,
+        "order_prev": 33
+      },
+      {
+        "query": "коврик пляжный 150х200",
+        "count_cur": 142,
+        "count_prev": 21,
+        "cart_cur": 0,
+        "cart_prev": 40,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "подстилка на море",
+        "count_cur": 114,
+        "count_prev": 87,
+        "cart_cur": 40,
+        "cart_prev": 14,
+        "order_cur": 50,
+        "order_prev": 0
+      },
+      {
+        "query": "сумка покрывало для пляжа",
+        "count_cur": 107,
+        "count_prev": 76,
+        "cart_cur": 0,
+        "cart_prev": 13,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "покрывала для пляжа",
+        "count_cur": 75,
+        "count_prev": 47,
+        "cart_cur": 17,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "коврик для пляжа 150*200",
+        "count_cur": 39,
+        "count_prev": 31,
+        "cart_cur": 0,
+        "cart_prev": 7,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "коврик для песка на пляж",
+        "count_cur": 34,
+        "count_prev": 38,
+        "cart_cur": 0,
+        "cart_prev": 33,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "подстилка пляжная на песок",
+        "count_cur": 25,
+        "count_prev": 126,
+        "cart_cur": 50,
+        "cart_prev": 11,
+        "order_cur": 50,
+        "order_prev": 0
+      },
+      {
+        "query": "пляжные пледы",
+        "count_cur": 20,
+        "count_prev": 10,
+        "cart_cur": 50,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "покрывало доя пляжа",
+        "count_cur": 16,
+        "count_prev": 4,
+        "cart_cur": 0,
+        "cart_prev": 100,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "224011927",
+        "count_cur": 14,
+        "count_prev": 19,
+        "cart_cur": 17,
+        "cart_prev": 17,
+        "order_cur": 67,
+        "order_prev": 25
+      },
+      {
+        "query": "сумка пляжный коврик",
+        "count_cur": 14,
+        "count_prev": 11,
+        "cart_cur": 100,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "подстилки пляжные",
+        "count_cur": 11,
+        "count_prev": 11,
+        "cart_cur": 0,
+        "cart_prev": 20,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "для пляжа каремат",
+        "count_cur": 6,
+        "count_prev": 0,
+        "cart_cur": 33,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "пляжное покпывало",
+        "count_cur": 2,
+        "count_prev": 0,
+        "cart_cur": 17,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "пляжный коврик декатлон",
+        "count_cur": 1,
+        "count_prev": 1,
+        "cart_cur": 100,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "коврик для моря пляжный 200х200",
+        "count_cur": 0,
+        "count_prev": 0,
+        "cart_cur": 0,
+        "cart_prev": 50,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "коврик пляжный на море 150 на 200",
+        "count_cur": 0,
+        "count_prev": 2,
+        "cart_cur": 0,
+        "cart_prev": 25,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "покрывала  пляжное",
+        "count_cur": 0,
+        "count_prev": 1,
+        "cart_cur": 0,
+        "cart_prev": 50,
+        "order_cur": 0,
+        "order_prev": 100
+      }
+    ],
+    "443855202": [
+      {
+        "query": "пляжный плед на море",
+        "count_cur": 126,
+        "count_prev": 32,
+        "cart_cur": 0,
+        "cart_prev": 17,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "пляжное покрывало микрофибра",
+        "count_cur": 67,
+        "count_prev": 5,
+        "cart_cur": 20,
+        "cart_prev": 0,
+        "order_cur": 33,
+        "order_prev": 0
+      },
+      {
+        "query": "коврик для пляжа легкий",
+        "count_cur": 43,
+        "count_prev": 64,
+        "cart_cur": 0,
+        "cart_prev": 33,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "покрывало пляжное микрофибра",
+        "count_cur": 16,
+        "count_prev": 21,
+        "cart_cur": 0,
+        "cart_prev": 25,
+        "order_cur": 0,
+        "order_prev": 50
+      },
+      {
+        "query": "коврик для пляжа из микрофибры",
+        "count_cur": 10,
+        "count_prev": 5,
+        "cart_cur": 25,
+        "cart_prev": 50,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "легкое покрывало на пляж",
+        "count_cur": 7,
+        "count_prev": 4,
+        "cart_cur": 0,
+        "cart_prev": 29,
+        "order_cur": 0,
+        "order_prev": 50
+      },
+      {
+        "query": "пледы пляжные",
+        "count_cur": 6,
+        "count_prev": 7,
+        "cart_cur": 50,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "443855202",
+        "count_cur": 1,
+        "count_prev": 1,
+        "cart_cur": 33,
+        "cart_prev": 100,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "коврик пляжный толстый на троих",
+        "count_cur": 1,
+        "count_prev": 0,
+        "cart_cur": 13,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "пляжное покрывало микрофибра большое",
+        "count_cur": 1,
+        "count_prev": 0,
+        "cart_cur": 100,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "лёгкий большой коврик для пляжа",
+        "count_cur": 0,
+        "count_prev": 1,
+        "cart_cur": 0,
+        "cart_prev": 50,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "на пляж подстилка легкая",
+        "count_cur": 0,
+        "count_prev": 2,
+        "cart_cur": 0,
+        "cart_prev": 50,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "подстилка микрофибра пляжная",
+        "count_cur": 0,
+        "count_prev": 1,
+        "cart_cur": 0,
+        "cart_prev": 33,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "покрывало микрофибро пляжное",
+        "count_cur": 0,
+        "count_prev": 1,
+        "cart_cur": 0,
+        "cart_prev": 100,
+        "order_cur": 0,
+        "order_prev": 100
+      }
+    ],
+    "410438249": [
+      {
+        "query": "лежак для пляжа тканевый",
+        "count_cur": 675,
+        "count_prev": 291,
+        "cart_cur": 15,
+        "cart_prev": 18,
+        "order_cur": 17,
+        "order_prev": 0
+      },
+      {
+        "query": "подстилка на пляж для гальки",
+        "count_cur": 447,
+        "count_prev": 321,
+        "cart_cur": 17,
+        "cart_prev": 14,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "коврик для загара на пляже",
+        "count_cur": 442,
+        "count_prev": 180,
+        "cart_cur": 9,
+        "cart_prev": 36,
+        "order_cur": 67,
+        "order_prev": 25
+      },
+      {
+        "query": "коврик на пляж для гальки плотный",
+        "count_cur": 392,
+        "count_prev": 134,
+        "cart_cur": 23,
+        "cart_prev": 13,
+        "order_cur": 33,
+        "order_prev": 0
+      },
+      {
+        "query": "плед для пикника непромокаемый 200 200",
+        "count_cur": 350,
+        "count_prev": 87,
+        "cart_cur": 19,
+        "cart_prev": 19,
+        "order_cur": 25,
+        "order_prev": 0
+      },
+      {
+        "query": "лежак для пляжа на гальке",
+        "count_cur": 288,
+        "count_prev": 178,
+        "cart_cur": 44,
+        "cart_prev": 0,
+        "order_cur": 25,
+        "order_prev": 0
+      },
+      {
+        "query": "покрывало пляжное для гальки",
+        "count_cur": 276,
+        "count_prev": 197,
+        "cart_cur": 60,
+        "cart_prev": 25,
+        "order_cur": 33,
+        "order_prev": 0
+      },
+      {
+        "query": "коврик для пляжа складной",
+        "count_cur": 253,
+        "count_prev": 141,
+        "cart_cur": 0,
+        "cart_prev": 13,
+        "order_cur": 0,
+        "order_prev": 50
+      },
+      {
+        "query": "лежанка для пляжа складная",
+        "count_cur": 190,
+        "count_prev": 132,
+        "cart_cur": 15,
+        "cart_prev": 0,
+        "order_cur": 50,
+        "order_prev": 0
+      },
+      {
+        "query": "складной лежак для пляжа",
+        "count_cur": 179,
+        "count_prev": 121,
+        "cart_cur": 17,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "циновка пляжная",
+        "count_cur": 158,
+        "count_prev": 112,
+        "cart_cur": 9,
+        "cart_prev": 7,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "коврик для пляжа и пикника 200*200",
+        "count_cur": 145,
+        "count_prev": 58,
+        "cart_cur": 21,
+        "cart_prev": 0,
+        "order_cur": 33,
+        "order_prev": 0
+      },
+      {
+        "query": "лежаки для пляжа складные",
+        "count_cur": 130,
+        "count_prev": 99,
+        "cart_cur": 0,
+        "cart_prev": 38,
+        "order_cur": 0,
+        "order_prev": 33
+      },
+      {
+        "query": "пляжный коврик для гальки толстый 200*200",
+        "count_cur": 95,
+        "count_prev": 211,
+        "cart_cur": 25,
+        "cart_prev": 12,
+        "order_cur": 0,
+        "order_prev": 25
+      },
+      {
+        "query": "лежак для пляжа тканевый складной",
+        "count_cur": 86,
+        "count_prev": 33,
+        "cart_cur": 50,
+        "cart_prev": 0,
+        "order_cur": 50,
+        "order_prev": 0
+      },
+      {
+        "query": "лежанка на пляж складная мягкая",
+        "count_cur": 85,
+        "count_prev": 89,
+        "cart_cur": 0,
+        "cart_prev": 33,
+        "order_cur": 0,
+        "order_prev": 33
+      },
+      {
+        "query": "коврик для загара на пляже мягкий",
+        "count_cur": 84,
+        "count_prev": 116,
+        "cart_cur": 50,
+        "cart_prev": 33,
+        "order_cur": 0,
+        "order_prev": 50
+      },
+      {
+        "query": "лежак для гальки",
+        "count_cur": 76,
+        "count_prev": 50,
+        "cart_cur": 0,
+        "cart_prev": 25,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "плед для пикника 200х200 непромокаемый",
+        "count_cur": 58,
+        "count_prev": 25,
+        "cart_cur": 20,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "пляжный коврик для гальки мягкий",
+        "count_cur": 58,
+        "count_prev": 43,
+        "cart_cur": 0,
+        "cart_prev": 33,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "лежаки для пляжа тканевые",
+        "count_cur": 38,
+        "count_prev": 39,
+        "cart_cur": 0,
+        "cart_prev": 20,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "коврик для пляжа 200*200 складной",
+        "count_cur": 36,
+        "count_prev": 13,
+        "cart_cur": 20,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "лежак пляжный мягкий",
+        "count_cur": 24,
+        "count_prev": 50,
+        "cart_cur": 0,
+        "cart_prev": 67,
+        "order_cur": 0,
+        "order_prev": 50
+      },
+      {
+        "query": "подстилка для отдыха",
+        "count_cur": 24,
+        "count_prev": 16,
+        "cart_cur": 13,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "коврик для пляжа на море 200",
+        "count_cur": 14,
+        "count_prev": 7,
+        "cart_cur": 0,
+        "cart_prev": 33,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "410438249",
+        "count_cur": 7,
+        "count_prev": 5,
+        "cart_cur": 8,
+        "cart_prev": 33,
+        "order_cur": 0,
+        "order_prev": 33
+      },
+      {
+        "query": "подстилка 200 200",
+        "count_cur": 2,
+        "count_prev": 0,
+        "cart_cur": 20,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "подстилка на камни на пляж",
+        "count_cur": 2,
+        "count_prev": 0,
+        "cart_cur": 20,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "детский коврик акладной в отпуск",
+        "count_cur": 1,
+        "count_prev": 0,
+        "cart_cur": 100,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "коврик для пляжа и пикника толсты",
+        "count_cur": 1,
+        "count_prev": 0,
+        "cart_cur": 33,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "коврик-сумка для пикника складной",
+        "count_cur": 1,
+        "count_prev": 0,
+        "cart_cur": 20,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "ковёр на пляж толстый",
+        "count_cur": 1,
+        "count_prev": 0,
+        "cart_cur": 100,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "плед для пляжа на море непромокаемый 200х200",
+        "count_cur": 1,
+        "count_prev": 0,
+        "cart_cur": 100,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "пляж коврик большой",
+        "count_cur": 1,
+        "count_prev": 0,
+        "cart_cur": 50,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "покрывало пляжное антипесок",
+        "count_cur": 1,
+        "count_prev": 1,
+        "cart_cur": 0,
+        "cart_prev": 25,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "коврик 200*200 толстый большой для пикника",
+        "count_cur": 0,
+        "count_prev": 1,
+        "cart_cur": 0,
+        "cart_prev": 100,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "коврик для пляжа 200*200 компактнный",
+        "count_cur": 0,
+        "count_prev": 1,
+        "cart_cur": 0,
+        "cart_prev": 100,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "коврик сумка для пляжа складной для гальки 200 на 200",
+        "count_cur": 0,
+        "count_prev": 3,
+        "cart_cur": 0,
+        "cart_prev": 33,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "лежак на море для гальки 200 на 200",
+        "count_cur": 0,
+        "count_prev": 1,
+        "cart_cur": 0,
+        "cart_prev": 100,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "плед для пляжа на море непромокаемый на камнях",
+        "count_cur": 0,
+        "count_prev": 1,
+        "cart_cur": 100,
+        "cart_prev": 100,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "пляжный складной коврик сумка 200*200",
+        "count_cur": 0,
+        "count_prev": 1,
+        "cart_cur": 0,
+        "cart_prev": 100,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "широкая подстилка для пляжа",
+        "count_cur": 0,
+        "count_prev": 1,
+        "cart_cur": 0,
+        "cart_prev": 50,
+        "order_cur": 0,
+        "order_prev": 100
+      }
+    ],
+    "220354170": [
+      {
+        "query": "сумка коврик для пляжа",
+        "count_cur": 496,
+        "count_prev": 349,
+        "cart_cur": 0,
+        "cart_prev": 14,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "подстилка пляжная",
+        "count_cur": 439,
+        "count_prev": 311,
+        "cart_cur": 17,
+        "cart_prev": 9,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "покрывало для пикника непромокаемый",
+        "count_cur": 404,
+        "count_prev": 214,
+        "cart_cur": 50,
+        "cart_prev": 0,
+        "order_cur": 50,
+        "order_prev": 0
+      },
+      {
+        "query": "коврик для кемпинга",
+        "count_cur": 287,
+        "count_prev": 236,
+        "cart_cur": 0,
+        "cart_prev": 100,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "коврик для пляжа детский",
+        "count_cur": 102,
+        "count_prev": 67,
+        "cart_cur": 0,
+        "cart_prev": 17,
+        "order_cur": 0,
+        "order_prev": 100
+      },
+      {
+        "query": "плед пляжный 200х200",
+        "count_cur": 90,
+        "count_prev": 60,
+        "cart_cur": 20,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "подстилка на пляж 200х200",
+        "count_cur": 83,
+        "count_prev": 56,
+        "cart_cur": 0,
+        "cart_prev": 40,
+        "order_cur": 0,
+        "order_prev": 50
+      },
+      {
+        "query": "плед сумка для пляжа",
+        "count_cur": 52,
+        "count_prev": 23,
+        "cart_cur": 20,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "ковер для пляжа большой",
+        "count_cur": 50,
+        "count_prev": 39,
+        "cart_cur": 27,
+        "cart_prev": 0,
+        "order_cur": 25,
+        "order_prev": 0
+      },
+      {
+        "query": "220354170",
+        "count_cur": 9,
+        "count_prev": 10,
+        "cart_cur": 7,
+        "cart_prev": 11,
+        "order_cur": 150,
+        "order_prev": 0
+      },
+      {
+        "query": "теаневое пляжное покрывало большое",
+        "count_cur": 2,
+        "count_prev": 0,
+        "cart_cur": 100,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "пляжная подстилка складная",
+        "count_cur": 1,
+        "count_prev": 2,
+        "cart_cur": 0,
+        "cart_prev": 0,
+        "order_cur": 100,
+        "order_prev": 0
+      },
+      {
+        "query": "пляжная покревало",
+        "count_cur": 0,
+        "count_prev": 1,
+        "cart_cur": 0,
+        "cart_prev": 100,
+        "order_cur": 0,
+        "order_prev": 0
+      }
+    ]
+  },
+  "warehouses": [
+    {
+      "name": "Пляжный коврик с колышками большой для гальки 200х200 см",
+      "article": "158827292",
+      "brand": "Sea Enjoy",
+      "region": "Южный и Северо-Кавказский",
+      "warehouse": "Невинномысск",
+      "stock": 228,
+      "in_transit_to": 19,
+      "in_transit_from": 0,
+      "avg_orders_day": 2.5
+    },
+    {
+      "name": "Пляжный коврик подстилка для пикника",
+      "article": "224011927",
+      "brand": "",
+      "region": "Центральный",
+      "warehouse": "Коледино",
+      "stock": 154,
+      "in_transit_to": 4,
+      "in_transit_from": 0,
+      "avg_orders_day": 1.5
+    },
+    {
+      "name": "Пляжное покрывало микрофибра 180*150 см",
+      "article": "443855202",
+      "brand": "MarkForMe",
+      "region": "Южный и Северо-Кавказский",
+      "warehouse": "Невинномысск",
+      "stock": 126,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный коврик подстилка для пикника",
+      "article": "224011927",
+      "brand": "",
+      "region": "Южный и Северо-Кавказский",
+      "warehouse": "Краснодар",
+      "stock": 125,
+      "in_transit_to": 1,
+      "in_transit_from": 0,
+      "avg_orders_day": 0.9
+    },
+    {
+      "name": "Пляжное покрывало микрофибра 180*150 см",
+      "article": "443855202",
+      "brand": "MarkForMe",
+      "region": "Центральный",
+      "warehouse": "Электросталь",
+      "stock": 115,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0.1
+    },
+    {
+      "name": "Пляжный коврик подстилка для пикника",
+      "article": "224011927",
+      "brand": "",
+      "region": "Приволжский",
+      "warehouse": "Новосемейкино",
+      "stock": 106,
+      "in_transit_to": 1,
+      "in_transit_from": 0,
+      "avg_orders_day": 0.8
+    },
+    {
+      "name": "Пляжное покрывало микрофибра 180*150 см",
+      "article": "443855202",
+      "brand": "MarkForMe",
+      "region": "Приволжский",
+      "warehouse": "Новосемейкино",
+      "stock": 97,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжное покрывало микрофибра 180*150 см",
+      "article": "443855202",
+      "brand": "MarkForMe",
+      "region": "Центральный",
+      "warehouse": "Котовск",
+      "stock": 75,
+      "in_transit_to": 30,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный коврик подстилка для пикника",
+      "article": "224011927",
+      "brand": "",
+      "region": "Центральный",
+      "warehouse": "Котовск",
+      "stock": 61,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0.3
+    },
+    {
+      "name": "Пляжное покрывало микрофибра 180*150 см",
+      "article": "443855202",
+      "brand": "MarkForMe",
+      "region": "Центральный",
+      "warehouse": "Коледино",
+      "stock": 52,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0.3
+    },
+    {
+      "name": "Пляжное покрывало микрофибра 180*150 см",
+      "article": "443855202",
+      "brand": "MarkForMe",
+      "region": "Уральский",
+      "warehouse": "Екатеринбург - Перспективная 14",
+      "stock": 38,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0.1
+    },
+    {
+      "name": "Пляжное покрывало микрофибра 180*150 см",
+      "article": "443855202",
+      "brand": "MarkForMe",
+      "region": "Южный и Северо-Кавказский",
+      "warehouse": "Краснодар",
+      "stock": 33,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0.2
+    },
+    {
+      "name": "Пляжное покрывало микрофибра 180*150 см",
+      "article": "443855202",
+      "brand": "MarkForMe",
+      "region": "Приволжский",
+      "warehouse": "Пенза WB",
+      "stock": 30,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный коврик-сумка складной 200х200",
+      "article": "220354170",
+      "brand": "G&O Home",
+      "region": "Центральный",
+      "warehouse": "Рязань (Тюшевское)",
+      "stock": 25,
+      "in_transit_to": 12,
+      "in_transit_from": 0,
+      "avg_orders_day": 1.8
+    },
+    {
+      "name": "Пляжное покрывало микрофибра 180*150 см",
+      "article": "443855202",
+      "brand": "MarkForMe",
+      "region": "Северо-Западный",
+      "warehouse": "Склад СПБ Шушары Московское",
+      "stock": 21,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжное покрывало микрофибра 180*150 см",
+      "article": "443855202",
+      "brand": "MarkForMe",
+      "region": "Приволжский",
+      "warehouse": "Казань",
+      "stock": 20,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжное покрывало микрофибра 180*150 см",
+      "article": "443855202",
+      "brand": "MarkForMe",
+      "region": "Приволжский",
+      "warehouse": "Сарапул WB",
+      "stock": 19,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный коврик-сумка складной 200х200",
+      "article": "220354170",
+      "brand": "G&O Home",
+      "region": "Приволжский",
+      "warehouse": "Сарапул WB",
+      "stock": 17,
+      "in_transit_to": 5,
+      "in_transit_from": 0,
+      "avg_orders_day": 1.8
+    },
+    {
+      "name": "Пляжный складной коврик сумка 200х200",
+      "article": "410438249",
+      "brand": "",
+      "region": "Приволжский",
+      "warehouse": "Казань",
+      "stock": 11,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0.3
+    },
+    {
+      "name": "Пляжный складной коврик сумка 200х200",
+      "article": "410438249",
+      "brand": "",
+      "region": "Центральный",
+      "warehouse": "Электросталь",
+      "stock": 11,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 1.8
+    },
+    {
+      "name": "Пляжный складной коврик сумка 200х200",
+      "article": "410438249",
+      "brand": "",
+      "region": "Центральный",
+      "warehouse": "Коледино",
+      "stock": 3,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 1
+    },
+    {
+      "name": "Пляжный коврик-сумка складной 200х200",
+      "article": "220354170",
+      "brand": "G&O Home",
+      "region": "Центральный",
+      "warehouse": "Воронеж WB",
+      "stock": 2,
+      "in_transit_to": 1,
+      "in_transit_from": 0,
+      "avg_orders_day": 0.2
+    },
+    {
+      "name": "Пляжный складной коврик сумка 200х200",
+      "article": "410438249",
+      "brand": "",
+      "region": "Центральный",
+      "warehouse": "Владимир WB",
+      "stock": 2,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный коврик подстилка для пикника",
+      "article": "224011927",
+      "brand": "",
+      "region": "Южный и Северо-Кавказский",
+      "warehouse": "Волгоград",
+      "stock": 2,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный складной коврик сумка 200х200",
+      "article": "410438249",
+      "brand": "",
+      "region": "Центральный",
+      "warehouse": "Рязань (Тюшевское)",
+      "stock": 2,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный коврик подстилка для пикника",
+      "article": "224011927",
+      "brand": "",
+      "region": "Приволжский",
+      "warehouse": "Пенза WB",
+      "stock": 1,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный коврик подстилка для пикника",
+      "article": "224011927",
+      "brand": "",
+      "region": "Центральный",
+      "warehouse": "Тула",
+      "stock": 1,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0.1
+    },
+    {
+      "name": "Пляжный коврик подстилка для пикника",
+      "article": "224011927",
+      "brand": "",
+      "region": "Центральный",
+      "warehouse": "Воронеж WB",
+      "stock": 1,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжное покрывало микрофибра 180*150 см",
+      "article": "443855202",
+      "brand": "MarkForMe",
+      "region": "Центральный",
+      "warehouse": "Воронеж WB",
+      "stock": 1,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный складной коврик сумка 200х200",
+      "article": "410438249",
+      "brand": "",
+      "region": "Уральский",
+      "warehouse": "Екатеринбург - Перспективная 14",
+      "stock": 1,
+      "in_transit_to": 3,
+      "in_transit_from": 0,
+      "avg_orders_day": 1
+    },
+    {
+      "name": "Пляжный коврик с колышками большой для гальки 200х200 см",
+      "article": "158827292",
+      "brand": "Sea Enjoy",
+      "region": "Северо-Западный",
+      "warehouse": "СЦ Шушары",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжное покрывало микрофибра 180*150 см",
+      "article": "443855202",
+      "brand": "MarkForMe",
+      "region": "Центральный",
+      "warehouse": "Остальные",
+      "stock": 0,
+      "in_transit_to": 3,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный складной коврик сумка 200х200",
+      "article": "410438249",
+      "brand": "",
+      "region": "Центральный",
+      "warehouse": "Тула",
+      "stock": 0,
+      "in_transit_to": 2,
+      "in_transit_from": 0,
+      "avg_orders_day": 0.2
+    },
+    {
+      "name": "Пляжный коврик с колышками большой для гальки 200х200 см",
+      "article": "158827292",
+      "brand": "Sea Enjoy",
+      "region": "Уральский",
+      "warehouse": "Екатеринбург - Перспективная 14",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0.1
+    },
+    {
+      "name": "Пляжный коврик с колышками большой для гальки 200х200 см",
+      "article": "158827292",
+      "brand": "Sea Enjoy",
+      "region": "Дальневосточный и Сибирский",
+      "warehouse": "Владивосток WB",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный коврик-сумка складной 200х200",
+      "article": "220354170",
+      "brand": "G&O Home",
+      "region": "Центральный",
+      "warehouse": "Радумля 1",
+      "stock": 0,
+      "in_transit_to": 1,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный складной коврик сумка 200х200",
+      "article": "410438249",
+      "brand": "",
+      "region": "Центральный",
+      "warehouse": "Котовск",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0.5
+    },
+    {
+      "name": "Пляжный коврик подстилка для пикника",
+      "article": "224011927",
+      "brand": "",
+      "region": "Центральный",
+      "warehouse": "Софьино",
+      "stock": 0,
+      "in_transit_to": 1,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный коврик-сумка складной 200х200",
+      "article": "220354170",
+      "brand": "G&O Home",
+      "region": "Центральный",
+      "warehouse": "Коледино",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0.1
+    },
+    {
+      "name": "Пляжный складной коврик сумка 200х200",
+      "article": "410438249",
+      "brand": "",
+      "region": "Северо-Западный",
+      "warehouse": "СЦ Шушары",
+      "stock": 0,
+      "in_transit_to": 2,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный коврик-сумка складной 200х200",
+      "article": "220354170",
+      "brand": "G&O Home",
+      "region": "Центральный",
+      "warehouse": "Владимир WB",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0.7
+    },
+    {
+      "name": "Пляжный коврик-сумка складной 200х200",
+      "article": "220354170",
+      "brand": "G&O Home",
+      "region": "Центральный",
+      "warehouse": "Ногинск",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный коврик подстилка для пикника",
+      "article": "224011927",
+      "brand": "",
+      "region": "Центральный",
+      "warehouse": "Электросталь",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0.1
+    },
+    {
+      "name": "Пляжный коврик-сумка складной 200х200",
+      "article": "220354170",
+      "brand": "G&O Home",
+      "region": "Южный и Северо-Кавказский",
+      "warehouse": "Волгоград",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0.7
+    },
+    {
+      "name": "Пляжный складной коврик сумка 200х200",
+      "article": "410438249",
+      "brand": "",
+      "region": "Дальневосточный и Сибирский",
+      "warehouse": "склад продавца Иркутск",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 1,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный складной коврик сумка 200х200",
+      "article": "410438249",
+      "brand": "",
+      "region": "Центральный",
+      "warehouse": "Внуково",
+      "stock": 0,
+      "in_transit_to": 1,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный складной коврик сумка 200х200",
+      "article": "410438249",
+      "brand": "",
+      "region": "Южный и Северо-Кавказский",
+      "warehouse": "Волгоград",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0.1
+    },
+    {
+      "name": "Пляжный коврик-сумка складной 200х200",
+      "article": "220354170",
+      "brand": "G&O Home",
+      "region": "Беларусь",
+      "warehouse": "Гомель 2",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 1,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный коврик с колышками большой для гальки 200х200 см",
+      "article": "158827292",
+      "brand": "Sea Enjoy",
+      "region": "Северо-Западный",
+      "warehouse": "Калининград",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный коврик-сумка складной 200х200",
+      "article": "220354170",
+      "brand": "G&O Home",
+      "region": "Дальневосточный и Сибирский",
+      "warehouse": "Абакан 2",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 1,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный коврик с колышками большой для гальки 200х200 см",
+      "article": "158827292",
+      "brand": "Sea Enjoy",
+      "region": "Центральный",
+      "warehouse": "Котовск",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0.4
+    },
+    {
+      "name": "Пляжный коврик-сумка складной 200х200",
+      "article": "220354170",
+      "brand": "G&O Home",
+      "region": "Южный и Северо-Кавказский",
+      "warehouse": "Краснодар",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0.2
+    },
+    {
+      "name": "Пляжный коврик-сумка складной 200х200",
+      "article": "220354170",
+      "brand": "G&O Home",
+      "region": "Центральный",
+      "warehouse": "Остальные",
+      "stock": 0,
+      "in_transit_to": 32,
+      "in_transit_from": 4,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный коврик с колышками большой для гальки 200х200 см",
+      "article": "158827292",
+      "brand": "Sea Enjoy",
+      "region": "Центральный",
+      "warehouse": "Остальные",
+      "stock": 0,
+      "in_transit_to": 42,
+      "in_transit_from": 4,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный коврик с колышками большой для гальки 200х200 см",
+      "article": "158827292",
+      "brand": "Sea Enjoy",
+      "region": "Центральный",
+      "warehouse": "Владимир WB",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 1.3
+    },
+    {
+      "name": "Пляжный коврик-сумка складной 200х200",
+      "article": "220354170",
+      "brand": "G&O Home",
+      "region": "Казахстан",
+      "warehouse": "Астана Карагандинское шоссе",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный коврик с колышками большой для гальки 200х200 см",
+      "article": "158827292",
+      "brand": "Sea Enjoy",
+      "region": "Центральный",
+      "warehouse": "Пушкино",
+      "stock": 0,
+      "in_transit_to": 1,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный коврик-сумка складной 200х200",
+      "article": "220354170",
+      "brand": "G&O Home",
+      "region": "Приволжский",
+      "warehouse": "Новосемейкино",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный коврик с колышками большой для гальки 200х200 см",
+      "article": "158827292",
+      "brand": "Sea Enjoy",
+      "region": "Центральный",
+      "warehouse": "Рязань (Тюшевское)",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0.1
+    },
+    {
+      "name": "Пляжный коврик с колышками большой для гальки 200х200 см",
+      "article": "158827292",
+      "brand": "Sea Enjoy",
+      "region": "Дальневосточный и Сибирский",
+      "warehouse": "СЦ Барнаул",
+      "stock": 0,
+      "in_transit_to": 1,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный коврик с колышками большой для гальки 200х200 см",
+      "article": "158827292",
+      "brand": "Sea Enjoy",
+      "region": "Приволжский",
+      "warehouse": "Казань",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный складной коврик сумка 200х200",
+      "article": "410438249",
+      "brand": "",
+      "region": "Центральный",
+      "warehouse": "Воронеж WB",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный коврик с колышками большой для гальки 200х200 см",
+      "article": "158827292",
+      "brand": "Sea Enjoy",
+      "region": "Приволжский",
+      "warehouse": "Новосемейкино",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 1.3
+    },
+    {
+      "name": "Пляжный коврик-сумка складной 200х200",
+      "article": "220354170",
+      "brand": "G&O Home",
+      "region": "Уральский",
+      "warehouse": "Екатеринбург - Перспективная 14",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный складной коврик сумка 200х200",
+      "article": "410438249",
+      "brand": "",
+      "region": "Беларусь",
+      "warehouse": "СЦ Гродно",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный коврик-сумка складной 200х200",
+      "article": "220354170",
+      "brand": "G&O Home",
+      "region": "Приволжский",
+      "warehouse": "Казань",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный складной коврик сумка 200х200",
+      "article": "410438249",
+      "brand": "",
+      "region": "Приволжский",
+      "warehouse": "Сарапул WB",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный складной коврик сумка 200х200",
+      "article": "410438249",
+      "brand": "",
+      "region": "Южный и Северо-Кавказский",
+      "warehouse": "Виртуальный Промышленная 56",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0.1
+    },
+    {
+      "name": "Пляжный коврик с колышками большой для гальки 200х200 см",
+      "article": "158827292",
+      "brand": "Sea Enjoy",
+      "region": "Южный и Северо-Кавказский",
+      "warehouse": "Краснодар",
+      "stock": 0,
+      "in_transit_to": 1,
+      "in_transit_from": 0,
+      "avg_orders_day": 0.2
+    },
+    {
+      "name": "Пляжный коврик-сумка складной 200х200",
+      "article": "220354170",
+      "brand": "G&O Home",
+      "region": "Дальневосточный и Сибирский",
+      "warehouse": "Владивосток WB",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный складной коврик сумка 200х200",
+      "article": "410438249",
+      "brand": "",
+      "region": "Приволжский",
+      "warehouse": "Оренбург Центральная",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный коврик с колышками большой для гальки 200х200 см",
+      "article": "158827292",
+      "brand": "Sea Enjoy",
+      "region": "Центральный",
+      "warehouse": "Электросталь",
+      "stock": 0,
+      "in_transit_to": 1,
+      "in_transit_from": 1,
+      "avg_orders_day": 0.4
+    },
+    {
+      "name": "Пляжный складной коврик сумка 200х200",
+      "article": "410438249",
+      "brand": "",
+      "region": "Центральный",
+      "warehouse": "Остальные",
+      "stock": 0,
+      "in_transit_to": 23,
+      "in_transit_from": 3,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный коврик с колышками большой для гальки 200х200 см",
+      "article": "158827292",
+      "brand": "Sea Enjoy",
+      "region": "Центральный",
+      "warehouse": "Тула",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0.2
+    },
+    {
+      "name": "Пляжный коврик-сумка складной 200х200",
+      "article": "220354170",
+      "brand": "G&O Home",
+      "region": "Центральный",
+      "warehouse": "Электросталь",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0.1
+    },
+    {
+      "name": "Пляжный коврик подстилка для пикника",
+      "article": "224011927",
+      "brand": "",
+      "region": "Центральный",
+      "warehouse": "Владимир WB",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный складной коврик сумка 200х200",
+      "article": "410438249",
+      "brand": "",
+      "region": "Южный и Северо-Кавказский",
+      "warehouse": "Виртуальный КрымWB",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный коврик-сумка складной 200х200",
+      "article": "220354170",
+      "brand": "G&O Home",
+      "region": "Северо-Западный",
+      "warehouse": "Склад СПБ Шушары Московское",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный коврик с колышками большой для гальки 200х200 см",
+      "article": "158827292",
+      "brand": "Sea Enjoy",
+      "region": "Северо-Западный",
+      "warehouse": "Склад СПБ Шушары Московское",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0.2
+    },
+    {
+      "name": "Пляжный коврик с колышками большой для гальки 200х200 см",
+      "article": "158827292",
+      "brand": "Sea Enjoy",
+      "region": "Приволжский",
+      "warehouse": "Сарапул WB",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0.1
+    },
+    {
+      "name": "Пляжный коврик-сумка складной 200х200",
+      "article": "220354170",
+      "brand": "G&O Home",
+      "region": "Южный и Северо-Кавказский",
+      "warehouse": "Невинномысск",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0.1
+    },
+    {
+      "name": "Пляжный коврик с колышками большой для гальки 200х200 см",
+      "article": "158827292",
+      "brand": "Sea Enjoy",
+      "region": "Дальневосточный и Сибирский",
+      "warehouse": "СЦ Хабаровск",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 1,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный коврик подстилка для пикника",
+      "article": "224011927",
+      "brand": "",
+      "region": "Южный и Северо-Кавказский",
+      "warehouse": "Невинномысск",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный коврик с колышками большой для гальки 200х200 см",
+      "article": "158827292",
+      "brand": "Sea Enjoy",
+      "region": "Центральный",
+      "warehouse": "Белые Столбы",
+      "stock": 0,
+      "in_transit_to": 1,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный коврик-сумка складной 200х200",
+      "article": "220354170",
+      "brand": "G&O Home",
+      "region": "Южный и Северо-Кавказский",
+      "warehouse": "Виртуальный Промышленная 56",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный коврик подстилка для пикника",
+      "article": "224011927",
+      "brand": "",
+      "region": "Уральский",
+      "warehouse": "Екатеринбург - Перспективная 14",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0.1
+    },
+    {
+      "name": "Пляжный коврик с колышками большой для гальки 200х200 см",
+      "article": "158827292",
+      "brand": "Sea Enjoy",
+      "region": "Центральный",
+      "warehouse": "Коледино",
+      "stock": 0,
+      "in_transit_to": 1,
+      "in_transit_from": 0,
+      "avg_orders_day": 0.1
+    },
+    {
+      "name": "Пляжный складной коврик сумка 200х200",
+      "article": "410438249",
+      "brand": "",
+      "region": "Северо-Западный",
+      "warehouse": "Склад СПБ Шушары Московское",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный коврик-сумка складной 200х200",
+      "article": "220354170",
+      "brand": "G&O Home",
+      "region": "Центральный",
+      "warehouse": "Тула",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0.1
+    },
+    {
+      "name": "Пляжный коврик подстилка для пикника",
+      "article": "224011927",
+      "brand": "",
+      "region": "Центральный",
+      "warehouse": "Остальные",
+      "stock": 0,
+      "in_transit_to": 12,
+      "in_transit_from": 1,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный коврик с колышками большой для гальки 200х200 см",
+      "article": "158827292",
+      "brand": "Sea Enjoy",
+      "region": "Беларусь",
+      "warehouse": "Минск",
+      "stock": 0,
+      "in_transit_to": 1,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный коврик с колышками большой для гальки 200х200 см",
+      "article": "158827292",
+      "brand": "Sea Enjoy",
+      "region": "Приволжский",
+      "warehouse": "Пенза WB",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный складной коврик сумка 200х200",
+      "article": "410438249",
+      "brand": "",
+      "region": "Южный и Северо-Кавказский",
+      "warehouse": "Невинномысск",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0.4
+    },
+    {
+      "name": "Пляжный коврик-сумка складной 200х200",
+      "article": "220354170",
+      "brand": "G&O Home",
+      "region": "Дальневосточный и Сибирский",
+      "warehouse": "СЦ Барнаул",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный коврик с колышками большой для гальки 200х200 см",
+      "article": "158827292",
+      "brand": "Sea Enjoy",
+      "region": "Центральный",
+      "warehouse": "Воронеж WB",
+      "stock": 0,
+      "in_transit_to": 1,
+      "in_transit_from": 0,
+      "avg_orders_day": 1.2
+    },
+    {
+      "name": "Пляжный коврик подстилка для пикника",
+      "article": "224011927",
+      "brand": "",
+      "region": "Приволжский",
+      "warehouse": "Казань",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0.1
+    },
+    {
+      "name": "Пляжный складной коврик сумка 200х200",
+      "article": "410438249",
+      "brand": "",
+      "region": "Приволжский",
+      "warehouse": "Новосемейкино",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0
+    },
+    {
+      "name": "Пляжный коврик с колышками большой для гальки 200х200 см",
+      "article": "158827292",
+      "brand": "Sea Enjoy",
+      "region": "Южный и Северо-Кавказский",
+      "warehouse": "Волгоград",
+      "stock": 0,
+      "in_transit_to": 0,
+      "in_transit_from": 0,
+      "avg_orders_day": 0.1
+    },
+    {
+      "name": "Пляжный складной коврик сумка 200х200",
+      "article": "410438249",
+      "brand": "",
+      "region": "Южный и Северо-Кавказский",
+      "warehouse": "Краснодар",
+      "stock": 0,
+      "in_transit_to": 1,
+      "in_transit_from": 0,
+      "avg_orders_day": 0.7
+    }
+  ]
+};
+let DATA = EMBEDDED_DATA;
+let currentPeriod = 'current';
+let OUR_ARTICLE = null;
+let activeQueryTab = 'all';
 
-// =====================================================
-// FORMATTERS
-// =====================================================
+/* === FORMAT HELPERS === */
 function fmtNum(v) {
   if (v === null || v === undefined || v === '' || v === '-') return '—';
-  if (typeof v === 'string') {
-    const n = parseFloat(v.replace(/\s/g, '').replace(',', '.'));
-    if (isNaN(n)) return v;
-    v = n;
+  if (typeof v === 'string' && /^[\d.,\s]+$/.test(v.replace(/[дч ]/g,''))) return v;
+  if (typeof v === 'number') {
+    if (Math.abs(v) >= 1000) return v.toLocaleString('ru-RU');
+    if (Number.isInteger(v)) return String(v);
+    return v.toFixed(1).replace('.', ',');
   }
-  if (typeof v !== 'number') return v;
-  return new Intl.NumberFormat('ru-RU').format(Math.round(v * 100) / 100);
+  return v;
 }
-function fmtDelta(v, isPercent = false) {
-  if (v === null || v === undefined || v === '' || v === '-') return '—';
-  if (typeof v === 'string') {
-    const n = parseFloat(v.replace(/\s/g, '').replace(',', '.'));
-    if (isNaN(n)) return v;
-    v = n;
-  }
-  if (typeof v !== 'number') return v;
-  const sign = v > 0 ? '+' : '';
-  return sign + fmtNum(v) + (isPercent ? '%' : '');
+function toNum(v) {
+  if (v === null || v === undefined || v === '-' || v === '') return null;
+  if (typeof v === 'number') return v;
+  const m = String(v).replace(/\s/g,'').replace(',','.').match(/-?\d+(\.\d+)?/);
+  return m ? parseFloat(m[0]) : null;
 }
-
-// =====================================================
-// UPLOAD HANDLERS
-// =====================================================
-const dropZone = document.getElementById('dropZone');
-const fileInput = document.getElementById('fileInput');
-const statusEl = document.getElementById('status');
-const resultsEl = document.getElementById('results');
-
-dropZone.addEventListener('dragover', e => {
-  e.preventDefault();
-  dropZone.classList.add('dragover');
-});
-dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-dropZone.addEventListener('drop', e => {
-  e.preventDefault();
-  dropZone.classList.remove('dragover');
-  if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
-});
-fileInput.addEventListener('change', e => {
-  if (e.target.files[0]) handleFile(e.target.files[0]);
-});
-
-async function handleFile(file) {
-  statusEl.innerHTML = '<div class="loader">Чтение файла</div>';
-  resultsEl.classList.add('hidden');
-  try {
-    const data = await file.arrayBuffer();
-    const wb = XLSX.read(data, { type: 'array' });
-    parseWbReport(wb);
-  } catch (err) {
-    statusEl.innerHTML = `<div class="error">Ошибка чтения файла: ${err.message}</div>`;
-  }
+function pctDiff(our, them) {
+  const a = toNum(our), b = toNum(them);
+  if (a === null || b === null || a === 0) return null;
+  return ((b - a) / Math.abs(a)) * 100;
 }
 
-// =====================================================
-// PARSE WB REPORT
-// =====================================================
-function parseWbReport(wb) {
-  // Найти лист "Показатели" (или похожий)
-  const sheetNames = wb.SheetNames;
-  const showSheet = sheetNames.find(n => n.toLowerCase().includes('показател'));
-  if (!showSheet) {
-    statusEl.innerHTML = `<div class="error">Не найден лист «Показатели». Это похоже на отчёт WB «Сравнение карточек»? Найденные листы: ${sheetNames.join(', ')}</div>`;
-    return;
+/* === INFO BAR === */
+function renderInfo() {
+  const info = DATA.info || {};
+  const items = [
+    ['Период текущий', info['Выбранный период'] || '—'],
+    ['Период предыдущий', info['Предыдущий период'] || '—'],
+    ['Наш артикул', OUR_ARTICLE || '—'],
+    ['Сравнивается с', `${Object.keys(getArticles()).length - 1} конкурентами`],
+  ];
+  document.getElementById('infoBar').innerHTML = items.map(([l,v]) =>
+    `<div class="info-item"><div class="label">${l}</div><div class="value">${v}</div></div>`
+  ).join('');
+}
+
+/* === ARTICLES === */
+function getArticles() {
+  // Первый артикул в "Общая информация" → "Выбранная номенклатура 1" = это всегда первый в таблице, но "наш" — это тот, к которому считаются разницы, а это артикул 1.
+  // На скринах RMAGENT "наш" — последний (158827292), но в файле "наш" — первый (224011927), потому что от него считается diff.
+  // Берём первый артикул как "наш"
+  const info = DATA.info || {};
+  const list = {};
+  for (let i = 1; i <= 5; i++) {
+    const id = info['Выбранная номенклатура ' + i];
+    if (id) list[i] = String(id).replace(/\.0$/, '');
   }
+  return list;
+}
 
-  const ws = wb.Sheets[showSheet];
-  const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
+function findMetric(name) {
+  return DATA.metrics.find(m => m.name === name);
+}
 
-  // rows[0] = заголовок отчёта; rows[1] = заголовки колонок; rows[2..] = метрики
-  if (!rows[1] || !rows[1][1]) {
-    statusEl.innerHTML = `<div class="error">Некорректная структура листа «Показатели».</div>`;
-    return;
+function renderArticlesBar() {
+  const arts = getArticles();
+  const nameMetric = findMetric('Название') || {current:{},prev:{}};
+  const brandMetric = findMetric('Бренд') || {current:{},prev:{}};
+  const html = Object.entries(arts).map(([idx, id]) => {
+    const isOur = (id === OUR_ARTICLE);
+    const name = nameMetric.current[id] || '';
+    const brand = brandMetric.current[id] || '';
+    return `<div class="article-card ${isOur ? 'our' : ''}">
+      <div class="article-thumb">🏖️</div>
+      <div class="article-meta">
+        <div class="article-id">${id}</div>
+        ${isOur ? '<div class="article-badge">наш артикул</div>' : ''}
+        <div class="article-brand">${brand || name.substring(0, 28)}${name.length > 28 ? '…' : ''}</div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('articlesBar').innerHTML = html;
+}
+
+/* === MAIN TABLE === */
+// Группы метрик
+const METRIC_GROUPS = [
+  { title: 'РЕЙТИНГИ И ЦЕНЫ', metrics: [
+    'Рейтинг карточки', 'Рейтинг по отзывам', 'Количество отзывов',
+    'Минимальная цена со скидкой (по размерам), ₽',
+    'Максимальная цена со скидкой (по размерам), ₽',
+    'Медианная цена покупателя, ₽',
+    'Среднее время доставки', 'Средняя позиция',
+  ]},
+  { title: 'ВОРОНКА ПРОДАЖ', metrics: [
+    'Показы', 'Переход в карточку, шт', 'CTR',
+    'Добавления в корзину, шт', 'Конверсия в корзину, %',
+    'Заказы, шт', 'Конверсия в заказ, %',
+    'Выкупы, шт', 'Процент выкупа', 'Отмены, шт',
+  ]},
+];
+
+// Метрики, где БОЛЬШЕ = ХУЖЕ (среднее время, средняя позиция, отмены)
+const INVERTED = new Set([
+  'Среднее время доставки', 'Средняя позиция', 'Отмены, шт',
+  'Минимальная цена со скидкой (по размерам), ₽',
+  'Максимальная цена со скидкой (по размерам), ₽',
+  'Медианная цена покупателя, ₽',
+]);
+
+// Состояние эконом-метрик
+let econState = { margin: 20, drr: 10 };
+
+function renderMetricsTable() {
+  const arts = getArticles();
+  const articleIds = Object.values(arts);
+  const ourIdx = articleIds.indexOf(OUR_ARTICLE);
+
+  // Headers
+  const nameMetric = findMetric('Название') || {current:{},prev:{}};
+  let thead = '<thead><tr><th>Показатель</th>';
+  thead += '<th style="background:linear-gradient(135deg,rgba(94,234,212,0.15),var(--bg-2));color:var(--accent-2)">Наш<br><small style="font-family:JetBrains Mono,monospace;font-weight:600">' + OUR_ARTICLE + '</small></th>';
+  thead += '<th>Среднее<br><small style="color:var(--text-3);font-weight:500">по конкурентам</small></th>';
+  thead += '<th>Лучшее<br><small style="color:var(--text-3);font-weight:500">по конкурентам</small></th>';
+  for (const id of articleIds) {
+    if (id === OUR_ARTICLE) continue;
+    thead += `<th>${id}</th>`;
   }
+  thead += '</tr></thead>';
 
-  // Извлекаем артикулы из заголовков колонок
-  // Структура: B = наш артикул, C = конкурент1, D = разница, E = конкурент2, F = разница, ...
-  const header = rows[1];
-  const articles = []; // {col, art, isOur}
-  // 1-я колонка — это наш артикул
-  for (let c = 1; c < header.length; c++) {
-    const h = String(header[c] || '');
-    if (h.includes('предыдущий')) break; // дальше идут предыдущие периоды
-    if (h.startsWith('Артикул WB')) {
-      const m = h.match(/Артикул WB\s+(\d+)/);
-      if (m) {
-        articles.push({
-          col: c,
-          art: m[1],
-          isOur: articles.length === 0,  // первый артикул в списке = наш
-        });
+  let tbody = '<tbody>';
+
+  for (const group of METRIC_GROUPS) {
+    tbody += `<tr class="row-section"><td colspan="${articleIds.length + 3}">${group.title}</td></tr>`;
+    for (const mname of group.metrics) {
+      const m = findMetric(mname);
+      if (!m) continue;
+      const period = currentPeriod === 'current' ? m.current : m.prev;
+      const inverted = INVERTED.has(mname);
+
+      // Конкуренты (без нашего)
+      const competitors = articleIds.filter(id => id !== OUR_ARTICLE);
+      const compVals = competitors.map(id => toNum(period[id])).filter(v => v !== null);
+      const avg = compVals.length ? (compVals.reduce((a,b)=>a+b,0) / compVals.length) : null;
+      const best = compVals.length ? (inverted ? Math.min(...compVals) : Math.max(...compVals)) : null;
+
+      const ourVal = toNum(period[OUR_ARTICLE]);
+      const ourRaw = period[OUR_ARTICLE];
+
+      // Лучшее значение в строке (включая нашего)
+      const allVals = articleIds.map(id => toNum(period[id])).filter(v => v !== null);
+      const rowBest = allVals.length ? (inverted ? Math.min(...allVals) : Math.max(...allVals)) : null;
+
+      tbody += `<tr><td class="metric-name">${mname}</td>`;
+
+      // Наш
+      const isOurBest = ourVal !== null && ourVal === rowBest;
+      tbody += `<td class="cell-our ${isOurBest?'cell-best':''}"><span class="cell-value">${fmtNum(ourRaw)}</span></td>`;
+
+      // Среднее
+      tbody += `<td><span class="cell-value" style="color:var(--text-2)">${avg !== null ? fmtNum(Math.round(avg*10)/10) : '—'}</span></td>`;
+
+      // Лучшее
+      tbody += `<td><span class="cell-value" style="color:var(--good)">${best !== null ? fmtNum(best) : '—'}</span></td>`;
+
+      // Конкуренты
+      for (const id of competitors) {
+        const v = toNum(period[id]);
+        const raw = period[id];
+        const d = pctDiff(ourVal, v);
+        // Цветовая логика: для НЕ инвертированных, если конкурент выше нашего → красная (точка роста), ниже → зелёная (мы лучше)
+        let cls = '';
+        if (d !== null && Math.abs(d) >= 5) {
+          let isGrowth;
+          if (inverted) isGrowth = d < 0; // у конкурента меньше = он лучше = у нас точка роста
+          else isGrowth = d > 0; // у конкурента больше = он лучше = у нас точка роста
+          cls = isGrowth ? 'cell-bad' : 'cell-good';
+        }
+        const isRowBest = v !== null && v === rowBest;
+        if (isRowBest) cls += ' cell-best';
+        let diffHtml = '';
+        if (d !== null) {
+          let diffClass;
+          if (inverted) diffClass = d > 0 ? 'good' : (d < 0 ? 'bad' : 'neutral');
+          else diffClass = d > 0 ? 'bad' : (d < 0 ? 'good' : 'neutral');
+          const sign = d > 0 ? '+' : '';
+          diffHtml = `<span class="diff ${diffClass}">${sign}${Math.round(d)}%</span>`;
+        }
+        tbody += `<td class="${cls}"><span class="cell-value">${fmtNum(raw)}</span>${diffHtml}</td>`;
       }
+      tbody += '</tr>';
     }
   }
 
-  if (articles.length < 2) {
-    statusEl.innerHTML = `<div class="error">Не удалось определить артикулы. В отчёте должно быть минимум 2 карточки для сравнения.</div>`;
-    return;
+  // === ЭКОНОМИЧЕСКИЕ МЕТРИКИ ===
+  tbody += `<tr class="row-section"><td colspan="${articleIds.length + 3}">ЭКОНОМИКА · введите ваши значения</td></tr>`;
+
+  // Маржинальность и ДРР - редактируемые
+  tbody += `<tr><td class="metric-name">Маржинальность, %</td>`;
+  tbody += `<td class="cell-our"><input type="number" class="editable" id="inpMargin" value="${econState.margin}" min="0" max="100"></td>`;
+  tbody += `<td colspan="${articleIds.length + 1}" style="text-align:left;color:var(--text-3);font-size:11px">↑ Один параметр на весь расчёт</td>`;
+  tbody += '</tr>';
+
+  tbody += `<tr><td class="metric-name">ДРР план, %</td>`;
+  tbody += `<td class="cell-our"><input type="number" class="editable" id="inpDrr" value="${econState.drr}" min="0" max="100"></td>`;
+  tbody += `<td colspan="${articleIds.length + 1}" style="text-align:left;color:var(--text-3);font-size:11px">↑ Доля рекламных расходов от выручки</td>`;
+  tbody += '</tr>';
+
+  // Расчётные эконом-метрики
+  // Сумма заказов = заказы × медианная цена
+  const ordersM = findMetric('Заказы, шт');
+  const priceM = findMetric('Медианная цена покупателя, ₽');
+  const showsM = findMetric('Показы');
+  const clicksM = findMetric('Переход в карточку, шт');
+  const cartsM = findMetric('Добавления в корзину, шт');
+  const buyoutM = findMetric('Выкупы, шт');
+
+  const econPeriod = currentPeriod === 'current' ? 'current' : 'prev';
+
+  function calcEcon(id) {
+    const orders = toNum(ordersM ? ordersM[econPeriod][id] : null) || 0;
+    const price = toNum(priceM ? priceM[econPeriod][id] : null) || 0;
+    const shows = toNum(showsM ? showsM[econPeriod][id] : null) || 0;
+    const clicks = toNum(clicksM ? clicksM[econPeriod][id] : null) || 0;
+    const carts = toNum(cartsM ? cartsM[econPeriod][id] : null) || 0;
+    const buyout = toNum(buyoutM ? buyoutM[econPeriod][id] : null) || 0;
+
+    const revenue = orders * price;
+    const buyoutRevenue = buyout * price;
+    // Расчётный CPM = (заказы × цена) ÷ показы × 1000  (это бюджет, который "влезает" при 100% ДРР)
+    const cpm = shows > 0 ? (revenue / shows) * 1000 : 0;
+    const cpmByMargin = cpm * (econState.margin / 100);
+    const cpmByDrr = cpm * (econState.drr / 100);
+    const viewsPerOrder = orders > 0 ? shows / orders : 0;
+    const clicksPerOrder = orders > 0 ? clicks / orders : 0;
+    const cartsPerOrder = orders > 0 ? carts / orders : 0;
+    const viewCost = shows > 0 ? cpmByDrr / 1000 : 0;
+    const clickCost = clicks > 0 ? (revenue * econState.drr / 100) / clicks : 0;
+    const cartCost = carts > 0 ? (revenue * econState.drr / 100) / carts : 0;
+    const orderCost = orders > 0 ? (revenue * econState.drr / 100) / orders : 0;
+    return { revenue, buyoutRevenue, cpm, cpmByMargin, cpmByDrr,
+      viewsPerOrder, clicksPerOrder, cartsPerOrder,
+      viewCost, clickCost, cartCost, orderCost };
   }
 
-  // Колонки предыдущего периода
-  const prevArticles = [];
-  for (let c = 1; c < header.length; c++) {
-    const h = String(header[c] || '');
-    const m = h.match(/Артикул WB\s+(\d+)\s+\(предыдущий период\)/);
-    if (m) prevArticles.push({ col: c, art: m[1] });
+  const econByArt = {};
+  for (const id of articleIds) econByArt[id] = calcEcon(id);
+
+  function fmtRub(v) {
+    if (!v || !isFinite(v)) return '—';
+    return Math.round(v).toLocaleString('ru-RU') + ' ₽';
+  }
+  function fmtFloat(v) {
+    if (!v || !isFinite(v)) return '—';
+    return v.toFixed(2).replace('.', ',');
   }
 
-  // Парсим метрики — строки с rows[2..]
-  const metrics = {};
-  for (let r = 2; r < rows.length; r++) {
-    const row = rows[r];
-    if (!row || !row[0]) continue;
-    metrics[row[0]] = row;
-  }
+  const econRows = [
+    ['Сумма заказов, ₽', e => fmtRub(e.revenue), 'revenue'],
+    ['Сумма выкупов, ₽', e => fmtRub(e.buyoutRevenue), 'buyoutRevenue'],
+    ['Расчётный CPM, ₽', e => fmtRub(e.cpm), 'cpm', 'сумма заказов ÷ показы × 1000'],
+    ['CPM по маржинальности, ₽', e => fmtRub(e.cpmByMargin), 'cpmByMargin', 'CPM × маржинальность'],
+    ['CPM по ДРР плану, ₽', e => fmtRub(e.cpmByDrr), 'cpmByDrr', 'CPM × ДРР'],
+    ['Просмотров на 1 заказ', e => fmtFloat(e.viewsPerOrder), 'viewsPerOrder'],
+    ['Кликов на 1 заказ', e => fmtFloat(e.clicksPerOrder), 'clicksPerOrder'],
+    ['Корзин на 1 заказ', e => fmtFloat(e.cartsPerOrder), 'cartsPerOrder'],
+    ['Стоимость клика, ₽', e => fmtRub(e.clickCost), 'clickCost'],
+    ['Стоимость корзины, ₽', e => fmtRub(e.cartCost), 'cartCost'],
+    ['Стоимость заказа, ₽', e => fmtRub(e.orderCost), 'orderCost'],
+  ];
 
-  // Получаем общую инфу
-  const overviewSheet = wb.Sheets[sheetNames.find(n => n.toLowerCase().includes('общая'))];
-  let period = '', prevPeriod = '';
-  if (overviewSheet) {
-    const ovrRows = XLSX.utils.sheet_to_json(overviewSheet, { header: 1, defval: null });
-    for (const row of ovrRows) {
-      if (row[0] === 'Выбранный период') period = row[1] || '';
-      if (row[0] === 'Предыдущий период') prevPeriod = row[1] || '';
-    }
-  }
+  // Метрики, где меньше = лучше для экономики
+  const econInverted = new Set(['viewsPerOrder','clicksPerOrder','cartsPerOrder','viewCost','clickCost','cartCost','orderCost']);
+  const econHigher = new Set(['revenue','buyoutRevenue','cpm','cpmByMargin','cpmByDrr']);
 
-  // Поисковые запросы по каждому артикулу
-  const querySheets = {};
-  for (const sn of sheetNames) {
-    if (sn.toLowerCase().includes('поисковые запросы') && !sn.toLowerCase().includes('всем')) {
-      const qWs = wb.Sheets[sn];
-      const qRows = XLSX.utils.sheet_to_json(qWs, { header: 1, defval: null });
-      // В первой строке — заголовок с артикулом
-      const titleStr = String(qRows[0]?.[0] || '');
-      const m = titleStr.match(/артикулу\s+(\d+)/);
-      if (m) {
-        querySheets[m[1]] = qRows.slice(2).filter(r => r && r[0]); // данные с 3-й строки
+  for (const [label, fn, key, sub] of econRows) {
+    tbody += `<tr><td class="metric-name">${label}${sub?`<small>${sub}</small>`:''}</td>`;
+    const ourE = econByArt[OUR_ARTICLE][key];
+
+    // Среднее по конкурентам
+    const compVals = articleIds.filter(id => id !== OUR_ARTICLE).map(id => econByArt[id][key]).filter(v => isFinite(v) && v > 0);
+    const avg = compVals.length ? compVals.reduce((a,b)=>a+b,0)/compVals.length : null;
+    const inverted = econInverted.has(key);
+    const best = compVals.length ? (inverted ? Math.min(...compVals) : Math.max(...compVals)) : null;
+
+    // Все значения
+    const allVals = articleIds.map(id => econByArt[id][key]).filter(v => isFinite(v) && v > 0);
+    const rowBest = allVals.length ? (inverted ? Math.min(...allVals) : Math.max(...allVals)) : null;
+    const isOurRowBest = isFinite(ourE) && ourE === rowBest;
+
+    tbody += `<td class="cell-our ${isOurRowBest?'cell-best':''}"><span class="cell-value">${fn(econByArt[OUR_ARTICLE])}</span></td>`;
+    tbody += `<td><span class="cell-value" style="color:var(--text-2)">${avg !== null ? (key.includes('Cost')||key==='revenue'||key==='buyoutRevenue'||key.includes('cpm')||key==='cpm'?fmtRub(avg):fmtFloat(avg)) : '—'}</span></td>`;
+    tbody += `<td><span class="cell-value" style="color:var(--good)">${best !== null ? (key.includes('Cost')||key==='revenue'||key==='buyoutRevenue'||key.includes('cpm')||key==='cpm'?fmtRub(best):fmtFloat(best)) : '—'}</span></td>`;
+
+    for (const id of articleIds) {
+      if (id === OUR_ARTICLE) continue;
+      const v = econByArt[id][key];
+      const d = (ourE && isFinite(ourE) && ourE !== 0) ? ((v - ourE) / Math.abs(ourE)) * 100 : null;
+      let cls = '';
+      if (d !== null && isFinite(d) && Math.abs(d) >= 5) {
+        let isGrowth;
+        if (inverted) isGrowth = d < 0;
+        else isGrowth = d > 0;
+        cls = isGrowth ? 'cell-bad' : 'cell-good';
       }
+      const isRowBest = isFinite(v) && v === rowBest;
+      if (isRowBest) cls += ' cell-best';
+      let diffHtml = '';
+      if (d !== null && isFinite(d)) {
+        let diffClass;
+        if (inverted) diffClass = d > 0 ? 'good' : (d < 0 ? 'bad' : 'neutral');
+        else diffClass = d > 0 ? 'bad' : (d < 0 ? 'good' : 'neutral');
+        const sign = d > 0 ? '+' : '';
+        diffHtml = `<span class="diff ${diffClass}">${sign}${Math.round(d)}%</span>`;
+      }
+      const fmtFn = (key.includes('Cost')||key==='revenue'||key==='buyoutRevenue'||key.includes('cpm')||key==='cpm') ? fmtRub : fmtFloat;
+      tbody += `<td class="${cls}"><span class="cell-value">${fmtFn(v)}</span>${diffHtml}</td>`;
     }
+    tbody += '</tr>';
+  }
+
+  // === ОЦЕНКА % ПОБЕД ===
+  // Считаем по всем сравнимым метрикам, сколько раз наш артикул побеждает каждого конкурента
+  function calcWins() {
+    const scores = {};
+    for (const id of articleIds) scores[id] = { wins: 0, total: 0 };
+    const allMetrics = [
+      ...METRIC_GROUPS.flatMap(g => g.metrics).filter(m => m !== 'Среднее время доставки'),
+    ];
+    for (const id of articleIds) {
+      if (id === OUR_ARTICLE) continue;
+      // Сравнение НАШ vs id
+      let myWins = 0, theirWins = 0, total = 0;
+      for (const mname of allMetrics) {
+        const m = findMetric(mname);
+        if (!m) continue;
+        const period = currentPeriod === 'current' ? m.current : m.prev;
+        const a = toNum(period[OUR_ARTICLE]);
+        const b = toNum(period[id]);
+        if (a === null || b === null) continue;
+        if (a === b) continue;
+        const inverted = INVERTED.has(mname);
+        const weBetter = inverted ? (a < b) : (a > b);
+        if (weBetter) myWins++;
+        else theirWins++;
+        total++;
+      }
+      scores[OUR_ARTICLE].wins += myWins;
+      scores[OUR_ARTICLE].total += total;
+      scores[id].wins = theirWins;
+      scores[id].total = total;
+    }
+    return scores;
+  }
+
+  const wins = calcWins();
+  tbody += `<tr class="score-row"><td>Оценка · % побед</td>`;
+  const ourScore = wins[OUR_ARTICLE].total > 0 ? Math.round(wins[OUR_ARTICLE].wins / wins[OUR_ARTICLE].total * 100) : 0;
+  tbody += `<td class="cell-our"><span class="score-cell" style="color:var(--accent-2)">${ourScore}%</span></td>`;
+  tbody += `<td>—</td><td>—</td>`;
+  for (const id of articleIds) {
+    if (id === OUR_ARTICLE) continue;
+    const s = wins[id].total > 0 ? Math.round(wins[id].wins / wins[id].total * 100) : 0;
+    const color = s > 50 ? 'var(--bad)' : (s < 30 ? 'var(--good)' : 'var(--warn)');
+    tbody += `<td><span class="score-cell" style="color:${color}">${s}%</span></td>`;
+  }
+  tbody += '</tr>';
+
+  tbody += '</tbody>';
+  document.getElementById('metricsTable').innerHTML = thead + tbody;
+
+  // Hook editable inputs
+  const inpMargin = document.getElementById('inpMargin');
+  const inpDrr = document.getElementById('inpDrr');
+  if (inpMargin) inpMargin.addEventListener('input', e => { econState.margin = parseFloat(e.target.value) || 0; renderMetricsTable(); });
+  if (inpDrr) inpDrr.addEventListener('input', e => { econState.drr = parseFloat(e.target.value) || 0; renderMetricsTable(); });
+}
+
+/* === WAREHOUSES === */
+function renderWarehouses() {
+  const whs = (DATA.warehouses || []).filter(w => w.article === OUR_ARTICLE);
+
+  // Сортируем по скорости продаж (avg_orders_day)
+  const sorted = [...whs].sort((a,b) => (b.avg_orders_day||0) - (a.avg_orders_day||0));
+  const top10 = sorted.filter(w => w.avg_orders_day > 0).slice(0, 10);
+  const maxSpeed = top10.length ? top10[0].avg_orders_day : 1;
+
+  document.getElementById('topWarehouses').innerHTML = top10.length === 0 ?
+    '<div style="color:var(--text-3);text-align:center;padding:20px">Нет данных о скорости продаж</div>' :
+    top10.map((w, i) => {
+      const pct = (w.avg_orders_day / maxSpeed) * 100;
+      return `<div class="wh-bar">
+        <div class="wh-rank">${i+1}</div>
+        <div class="wh-bar-bg">
+          <div class="wh-bar-fill" style="width:${pct}%"></div>
+          <div class="wh-bar-label">${w.warehouse}</div>
+        </div>
+        <div class="wh-value">${w.avg_orders_day.toFixed(1).replace('.',',')} /день</div>
+      </div>`;
+    }).join('');
+
+  // Stock table
+  document.getElementById('stockBody').innerHTML = sorted.length === 0 ?
+    '<tr><td colspan="4" style="color:var(--text-3);text-align:center;padding:20px">Нет остатков</td></tr>' :
+    sorted.map(w => {
+      const stock = w.stock || 0;
+      const speed = w.avg_orders_day || 0;
+      const days = speed > 0 ? stock / speed : null;
+      let daysCls = 'days-good', daysTxt;
+      if (days === null) daysTxt = '—';
+      else {
+        daysTxt = days < 999 ? Math.round(days) + ' дн.' : '∞';
+        if (days < 15) daysCls = 'days-low';
+        else if (days < 30) daysCls = 'days-mid';
+      }
+      return `<tr>
+        <td>${w.warehouse}<br><small style="color:var(--text-3)">${w.region}</small></td>
+        <td class="num">${stock}</td>
+        <td class="num">${speed.toFixed(1).replace('.',',')}</td>
+        <td class="num ${daysCls}">${daysTxt}</td>
+      </tr>`;
+    }).join('');
+}
+
+/* === QUERIES === */
+function renderQueriesTabs() {
+  const arts = getArticles();
+  const articleIds = Object.values(arts);
+  let html = `<button class="qtab ${activeQueryTab==='all'?'active':''}" data-tab="all">Все артикулы</button>`;
+  for (const id of articleIds) {
+    const isOur = id === OUR_ARTICLE;
+    html += `<button class="qtab ${activeQueryTab===id?'active':''}" data-tab="${id}">${id}${isOur?' (наш)':''}</button>`;
+  }
+  document.getElementById('queriesTabs').innerHTML = html;
+  document.querySelectorAll('.qtab').forEach(b => {
+    b.addEventListener('click', () => {
+      activeQueryTab = b.dataset.tab;
+      renderQueriesTabs();
+      renderQueriesTable();
+    });
+  });
+}
+
+function renderQueriesTable() {
+  const articleIds = Object.values(getArticles());
+  if (activeQueryTab === 'all') {
+    let thead = '<thead><tr><th>Поисковый запрос</th><th>Запросов сейчас</th><th>Динамика</th>';
+    for (const id of articleIds) {
+      thead += `<th>${id}${id===OUR_ARTICLE?' (наш)':''}<br><small style="font-weight:500;color:var(--text-3)">CR в корзину</small></th>`;
+    }
+    thead += '</tr></thead>';
+    let tbody = '<tbody>';
+    const items = DATA.queries_all || [];
+    for (const q of items) {
+      const cur = currentPeriod === 'current' ? q.count_cur : q.count_prev;
+      const prev = currentPeriod === 'current' ? q.count_prev : q.count_cur;
+      const d = pctDiff(prev, cur);
+      const cartObj = currentPeriod === 'current' ? q.cart_cur : q.cart_prev;
+      tbody += `<tr><td class="query-text">${q.query}</td>`;
+      tbody += `<td style="text-align:right;font-family:JetBrains Mono,monospace;font-weight:600">${fmtNum(cur)}</td>`;
+      let diffClass = d > 0 ? 'good' : (d < 0 ? 'bad' : 'neutral');
+      let diffSign = d > 0 ? '+' : '';
+      tbody += `<td style="text-align:right">${d !== null ? `<span class="diff ${diffClass}">${diffSign}${Math.round(d)}%</span>` : '—'}</td>`;
+      for (const id of articleIds) {
+        const v = toNum(cartObj[id]);
+        const isOur = id === OUR_ARTICLE;
+        tbody += `<td style="text-align:right;font-family:JetBrains Mono,monospace;font-weight:600;${isOur?'color:var(--accent-2)':''}">${v !== null ? v + '%' : '—'}</td>`;
+      }
+      tbody += '</tr>';
+    }
+    tbody += '</tbody>';
+    document.getElementById('queriesTable').innerHTML = thead + tbody;
+  } else {
+    const list = (DATA.queries_by_article || {})[activeQueryTab] || [];
+    let thead = '<thead><tr><th>Поисковый запрос</th><th>Запросов</th><th>Динамика</th><th>CR в корзину</th><th>CR в заказ</th></tr></thead>';
+    let tbody = '<tbody>';
+    for (const q of list) {
+      const cur = currentPeriod === 'current' ? q.count_cur : q.count_prev;
+      const prev = currentPeriod === 'current' ? q.count_prev : q.count_cur;
+      const d = pctDiff(prev, cur);
+      const cart = currentPeriod === 'current' ? q.cart_cur : q.cart_prev;
+      const order = currentPeriod === 'current' ? q.order_cur : q.order_prev;
+      let diffClass = d > 0 ? 'good' : (d < 0 ? 'bad' : 'neutral');
+      let diffSign = d > 0 ? '+' : '';
+      tbody += `<tr>
+        <td class="query-text">${q.query}</td>
+        <td style="text-align:right;font-family:JetBrains Mono,monospace;font-weight:600">${fmtNum(cur)}</td>
+        <td style="text-align:right">${d !== null ? `<span class="diff ${diffClass}">${diffSign}${Math.round(d)}%</span>` : '—'}</td>
+        <td style="text-align:right;font-family:JetBrains Mono,monospace;font-weight:600">${cart !== null && cart !== undefined ? cart + '%' : '—'}</td>
+        <td style="text-align:right;font-family:JetBrains Mono,monospace;font-weight:600">${order !== null && order !== undefined ? order + '%' : '—'}</td>
+      </tr>`;
+    }
+    if (list.length === 0) {
+      tbody += '<tr><td colspan="5" style="text-align:center;color:var(--text-3);padding:20px">Нет данных по этому артикулу</td></tr>';
+    }
+    tbody += '</tbody>';
+    document.getElementById('queriesTable').innerHTML = thead + tbody;
+  }
+}
+
+/* === MAIN RENDER === */
+function renderAll() {
+  const arts = getArticles();
+  OUR_ARTICLE = Object.values(arts)[0]; // первый артикул из "Общая информация" = "наш"
+  renderInfo();
+  renderArticlesBar();
+  renderMetricsTable();
+  renderWarehouses();
+  renderQueriesTabs();
+  renderQueriesTable();
+}
+
+/* === PERIOD SWITCH === */
+document.getElementById('periodSwitcher').addEventListener('click', e => {
+  const btn = e.target.closest('.period-btn');
+  if (!btn) return;
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentPeriod = btn.dataset.period;
+  renderAll();
+});
+
+/* === FILE UPLOAD === */
+document.getElementById('fileInput').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const buf = await file.arrayBuffer();
+  const wb = XLSX.read(buf);
+  DATA = parseWorkbook(wb);
+  renderAll();
+});
+
+function parseWorkbook(wb) {
+  const out = { info: {}, metrics: [], queries_all: [], queries_by_article: {}, warehouses: [] };
+  const sheetByPart = (part) => wb.SheetNames.find(n => n.toLowerCase().includes(part.toLowerCase()));
+
+  // Общая информация
+  const sInfo = wb.Sheets[sheetByPart('Общая информация')];
+  if (sInfo) {
+    const rows = XLSX.utils.sheet_to_json(sInfo, {header:1, defval:null});
+    for (const r of rows) {
+      if (r[0] && r[1] !== null && r[1] !== undefined) out.info[r[0]] = String(r[1]);
+    }
+  }
+
+  const articles = [];
+  for (let i = 1; i <= 5; i++) {
+    const id = out.info['Выбранная номенклатура ' + i];
+    if (id) articles.push(String(id).replace(/\.0$/, ''));
+  }
+
+  // Показатели
+  const sMetr = wb.Sheets[sheetByPart('Показатели') || ''];
+  if (sMetr) {
+    const rows = XLSX.utils.sheet_to_json(sMetr, {header:1, defval:null});
+    const currentCols = [1,2,4,6,8];
+    const prevCols = [10,11,13,15,17];
+    for (let i = 2; i < rows.length; i++) {
+      const r = rows[i];
+      if (!r[0]) continue;
+      const cur = {}, prev = {};
+      for (let j = 0; j < 5; j++) {
+        cur[articles[j]] = r[currentCols[j]];
+        prev[articles[j]] = r[prevCols[j]];
+      }
+      out.metrics.push({ name: r[0], current: cur, prev: prev });
+    }
+  }
+
+  // Поисковые запросы по всем артикулам
+  const sQA = wb.Sheets[wb.SheetNames.find(n => n.startsWith('Поисковые запросы по всем'))];
+  if (sQA) {
+    const rows = XLSX.utils.sheet_to_json(sQA, {header:1, defval:null});
+    for (let i = 2; i < rows.length; i++) {
+      const r = rows[i];
+      if (!r[0]) continue;
+      const cart_cur = {}, cart_prev = {}, order_cur = {}, order_prev = {};
+      for (let j = 0; j < 5; j++) {
+        cart_cur[articles[j]] = r[3+j];
+        cart_prev[articles[j]] = r[8+j];
+        order_cur[articles[j]] = r[13+j];
+        order_prev[articles[j]] = r[18+j];
+      }
+      out.queries_all.push({ query: r[0], count_cur: r[1], count_prev: r[2], cart_cur, cart_prev, order_cur, order_prev });
+    }
+  }
+
+  // Поисковые запросы по каждому артикулу — все листы, начинающиеся с "Поисковые запросы по артикул" или "N Поисковые запросы"
+  const qsheets = wb.SheetNames.filter(n => /Поисковые запросы по артик/i.test(n));
+  for (const sn of qsheets) {
+    const s = wb.Sheets[sn];
+    const rows = XLSX.utils.sheet_to_json(s, {header:1, defval:null});
+    const title = rows[0] ? String(rows[0][0] || '') : '';
+    const m = title.match(/(\d{6,})/);
+    const art = m ? m[1] : null;
+    const list = [];
+    for (let i = 2; i < rows.length; i++) {
+      const r = rows[i];
+      if (!r[0]) continue;
+      list.push({
+        query: r[0], count_cur: r[1], count_prev: r[2],
+        cart_cur: r[3], cart_prev: r[4], order_cur: r[5], order_prev: r[6],
+      });
+    }
+    if (art) out.queries_by_article[art] = list;
   }
 
   // Склады и регионы
-  const stocksSheetName = sheetNames.find(n => n.toLowerCase().includes('склад'));
-  let stocksRows = [];
-  if (stocksSheetName) {
-    const sRows = XLSX.utils.sheet_to_json(wb.Sheets[stocksSheetName], { header: 1, defval: null });
-    stocksRows = sRows.slice(2).filter(r => r && r[1]);
-  }
-
-  // Рендер
-  renderReport({
-    articles, prevArticles, metrics, period, prevPeriod, querySheets, stocksRows, header
-  });
-  statusEl.innerHTML = '';
-}
-
-// =====================================================
-// RENDER MAIN REPORT
-// =====================================================
-function renderReport(data) {
-  const { articles, prevArticles, metrics, period, prevPeriod, querySheets, stocksRows } = data;
-  const our = articles[0];
-  const competitors = articles.slice(1);
-
-  let html = '';
-
-  // ===== Period bar =====
-  html += `<div class="card period-bar">`;
-  html += `<div><strong>Период:</strong> ${period || '—'}</div>`;
-  html += `<div><strong>Предыдущий:</strong> ${prevPeriod || '—'}</div>`;
-  html += `<div><strong>Карточек в сравнении:</strong> ${articles.length}</div>`;
-  html += `<div><strong>Ваш артикул:</strong> ${our.art}</div>`;
-  html += `</div>`;
-
-  // ===== Product cards =====
-  html += `<div class="card">`;
-  html += `<div class="section-head"><h2>Карточки товаров</h2><div class="desc">Ваша карточка выделена синей рамкой.</div></div>`;
-  html += `<div class="cards-grid">`;
-  for (const a of articles) {
-    const name = metrics['Название']?.[a.col] || 'Без названия';
-    const price = metrics['Медианная цена покупателя, ₽']?.[a.col] || metrics['Минимальная цена со скидкой (по размерам), ₽']?.[a.col];
-    const rating = metrics['Рейтинг по отзывам']?.[a.col];
-    const reviews = metrics['Количество отзывов']?.[a.col];
-    const cardId = `card-img-${a.art}`;
-    const fallId = `card-fall-${a.art}`;
-    html += `<div class="product-card ${a.isOur ? 'our' : ''}">`;
-    if (a.isOur) html += `<span class="badge">Наш товар</span>`;
-    html += `<img id="${cardId}" alt="${name}" style="display:none">`;
-    html += `<div id="${fallId}" class="img-fallback">Загрузка</div>`;
-    html += `<div class="name">${name}</div>`;
-    html += `<div class="art">арт. ${a.art}</div>`;
-    if (price) html += `<div class="price">${fmtNum(price)} ₽</div>`;
-    if (rating) html += `<div class="rating">★ ${rating} · ${fmtNum(reviews)} отзывов</div>`;
-    html += `<a href="https://www.wildberries.ru/catalog/${a.art}/detail.aspx" target="_blank" rel="noopener">Открыть на WB →</a>`;
-    html += `</div>`;
-  }
-  html += `</div></div>`;
-
-  // ===== Verdict pills =====
-  html += renderVerdict(our, competitors, metrics);
-
-  // ===== Metrics table =====
-  html += renderMetricsTable(articles, metrics);
-
-  // ===== Recommendations =====
-  html += renderRecommendations(our, competitors, metrics);
-
-  // ===== Search queries =====
-  if (Object.keys(querySheets).length) {
-    html += renderSearchQueries(articles, querySheets);
-  }
-
-  // ===== Stocks =====
-  if (stocksRows.length) {
-    html += renderStocks(articles, stocksRows);
-  }
-
-  resultsEl.innerHTML = html;
-  resultsEl.classList.remove('hidden');
-
-  // Загрузка картинок (после рендера DOM)
-  for (const a of articles) {
-    const img = document.getElementById(`card-img-${a.art}`);
-    const fall = document.getElementById(`card-fall-${a.art}`);
-    if (img && fall) loadProductImage(img, fall, a.art);
-  }
-}
-
-// =====================================================
-// VERDICT PILLS — общая оценка
-// =====================================================
-function renderVerdict(our, competitors, metrics) {
-  // Ключевые KPI: Показы, CTR, Конверсия в корзину, Конверсия в заказ, Отзывы, Заказы
-  const kpis = [
-    { name: 'Показы', label: 'Показы', biggerBetter: true },
-    { name: 'CTR', label: 'CTR, %', biggerBetter: true },
-    { name: 'Конверсия в корзину, %', label: 'CR в корзину', biggerBetter: true },
-    { name: 'Конверсия в заказ, %', label: 'CR в заказ', biggerBetter: true },
-    { name: 'Заказы, шт', label: 'Заказы', biggerBetter: true },
-    { name: 'Количество отзывов', label: 'Отзывы', biggerBetter: true },
-    { name: 'Рейтинг по отзывам', label: 'Рейтинг', biggerBetter: true },
-    { name: 'Процент выкупа', label: 'Выкуп %', biggerBetter: true },
-  ];
-
-  let html = `<div class="card"><div class="section-head"><h2>Общая оценка</h2><div class="desc">Зелёный — лидируем, жёлтый — отстаём, красный — критичное отставание.</div></div>`;
-  html += `<div class="verdict-grid">`;
-
-  for (const k of kpis) {
-    const row = metrics[k.name];
-    if (!row) continue;
-    const ourVal = parseFloat(String(row[our.col] || '').replace(/\s/g,'').replace(',','.'));
-    if (isNaN(ourVal)) continue;
-    const compVals = competitors.map(c => parseFloat(String(row[c.col] || '').replace(/\s/g,'').replace(',','.'))).filter(v => !isNaN(v));
-    if (!compVals.length) continue;
-    const avgComp = compVals.reduce((a,b)=>a+b,0) / compVals.length;
-    const bestComp = k.biggerBetter ? Math.max(...compVals) : Math.min(...compVals);
-    let cls = 'success';
-    if (k.biggerBetter) {
-      if (ourVal < avgComp * 0.5) cls = 'danger';
-      else if (ourVal < avgComp * 0.85) cls = 'warn';
-      else if (ourVal < bestComp) cls = 'info';
-    } else {
-      if (ourVal > avgComp * 1.5) cls = 'danger';
-      else if (ourVal > avgComp * 1.15) cls = 'warn';
+  const sW = wb.Sheets[sheetByPart('Склады')];
+  if (sW) {
+    const rows = XLSX.utils.sheet_to_json(sW, {header:1, defval:null});
+    for (let i = 2; i < rows.length; i++) {
+      const r = rows[i];
+      if (!r[0]) continue;
+      out.warehouses.push({
+        name: r[0], article: String(r[1]).replace(/\.0$/, ''), brand: r[3] || '',
+        region: r[4], warehouse: r[5],
+        stock: r[6] || 0, in_transit_to: r[7] || 0,
+        in_transit_from: r[8] || 0, avg_orders_day: r[9] || 0,
+      });
     }
-    html += `<div class="verdict-pill ${cls}">`;
-    html += `<div class="label">${k.label}</div>`;
-    html += `<div class="value">${fmtNum(ourVal)}</div>`;
-    html += `<div style="font-size:11px;margin-top:2px">средн. конкурентов: ${fmtNum(avgComp)}</div>`;
-    html += `</div>`;
   }
-  html += `</div></div>`;
-  return html;
+
+  return out;
 }
 
-// =====================================================
-// METRICS TABLE
-// =====================================================
-const METRIC_GROUPS = [
-  { title: 'Описание карточки', metrics: ['Название', 'Категория', 'Предмет', 'Бренд', 'Рейтинг карточки', 'Рейтинг по отзывам', 'Количество отзывов'] },
-  { title: 'Цена', metrics: ['Минимальная цена со скидкой (по размерам), ₽', 'Максимальная цена со скидкой (по размерам), ₽', 'Медианная цена покупателя, ₽'] },
-  { title: 'Видимость и трафик', metrics: ['Среднее время доставки', 'Средняя позиция', 'Показы', 'Переход в карточку, шт', 'CTR'] },
-  { title: 'Воронка продаж', metrics: ['Добавления в корзину, шт', 'Конверсия в корзину, %', 'Заказы, шт', 'Конверсия в заказ, %', 'Выкупы, шт', 'Процент выкупа', 'Отмены, шт'] },
-];
-
-function renderMetricsTable(articles, metrics) {
-  let html = `<div class="card"><div class="section-head"><h2>Сравнение по метрикам</h2><div class="desc">Красные строки — где вы отстаёте от среднего конкурентов более чем на 15%.</div></div>`;
-
-  for (const group of METRIC_GROUPS) {
-    html += `<h3 style="margin-top:18px;">${group.title}</h3>`;
-    html += `<div style="overflow-x:auto"><table class="metrics-table"><thead><tr>`;
-    html += `<th>Метрика</th>`;
-    for (const a of articles) {
-      html += `<th class="${a.isOur ? 'our' : ''}">${a.isOur ? '⭐ ' : ''}арт. ${a.art}</th>`;
-    }
-    html += `</tr></thead><tbody>`;
-
-    for (const metricName of group.metrics) {
-      const row = metrics[metricName];
-      if (!row) continue;
-      const ourVal = row[articles[0].col];
-      const ourNum = parseFloat(String(ourVal || '').replace(/\s/g,'').replace(',','.'));
-      const compNums = articles.slice(1).map(c => parseFloat(String(row[c.col] || '').replace(/\s/g,'').replace(',','.'))).filter(v => !isNaN(v));
-      const avgComp = compNums.length ? compNums.reduce((a,b)=>a+b,0) / compNums.length : null;
-      const isLagging = avgComp !== null && !isNaN(ourNum) && ourNum < avgComp * 0.85 && isMetricBiggerBetter(metricName);
-      const isBad = avgComp !== null && !isNaN(ourNum) && ourNum < avgComp * 0.5 && isMetricBiggerBetter(metricName);
-
-      html += `<tr class="${isBad ? 'row-bad' : ''}">`;
-      html += `<td class="metric-name">${metricName}</td>`;
-      for (let ai = 0; ai < articles.length; ai++) {
-        const a = articles[ai];
-        const v = row[a.col];
-        const isOurCol = a.isOur;
-        let display = (typeof v === 'number') ? fmtNum(v) : (v ?? '—');
-        let cls = isOurCol ? 'our' : '';
-        // Дельта для конкурентов
-        if (!isOurCol && typeof v === 'number' && typeof ourVal === 'number' && !isNaN(ourVal)) {
-          const delta = v - ourVal;
-          const goodForUs = isMetricBiggerBetter(metricName) ? delta < 0 : delta > 0;
-          const deltaCls = delta === 0 ? 'delta-neutral' : (goodForUs ? 'delta-good' : 'delta-bad');
-          display = `${fmtNum(v)} <span class="${deltaCls}" style="font-size:11px">(${delta > 0 ? '+' : ''}${fmtNum(delta)})</span>`;
-        }
-        html += `<td class="${cls}">${display}</td>`;
-      }
-      html += `</tr>`;
-    }
-    html += `</tbody></table></div>`;
-  }
-  html += `</div>`;
-  return html;
-}
-
-function isMetricBiggerBetter(metricName) {
-  const smallerBetter = ['Среднее время доставки', 'Средняя позиция', 'Отмены, шт', 'Минимальная цена со скидкой (по размерам), ₽', 'Максимальная цена со скидкой (по размерам), ₽', 'Медианная цена покупателя, ₽'];
-  return !smallerBetter.includes(metricName);
-}
-
-// =====================================================
-// RECOMMENDATIONS
-// =====================================================
-function renderRecommendations(our, competitors, metrics) {
-  const recos = [];
-
-  function getNum(metric, col) {
-    const v = metrics[metric]?.[col];
-    if (v === null || v === undefined) return null;
-    const n = parseFloat(String(v).replace(/\s/g,'').replace(',','.'));
-    return isNaN(n) ? null : n;
-  }
-  function avgComp(metric) {
-    const vals = competitors.map(c => getNum(metric, c.col)).filter(v => v !== null);
-    return vals.length ? vals.reduce((a,b)=>a+b,0) / vals.length : null;
-  }
-  function maxComp(metric) {
-    const vals = competitors.map(c => getNum(metric, c.col)).filter(v => v !== null);
-    return vals.length ? Math.max(...vals) : null;
-  }
-
-  // 1. Отзывы
-  const ourReviews = getNum('Количество отзывов', our.col);
-  const avgReviews = avgComp('Количество отзывов');
-  if (ourReviews !== null && avgReviews !== null && ourReviews < avgReviews * 0.5) {
-    recos.push({
-      level: 'danger',
-      title: `Критически мало отзывов: ${fmtNum(ourReviews)} против ${fmtNum(avgReviews)} в среднем у конкурентов`,
-      desc: 'Отзывы — главный социальный сигнал доверия на WB. Запустите программу сбора отзывов: вкладыши с QR-кодом в посылку, бонусы за фото-отзыв, акции «отзыв за подарок». Цель — за 2-3 месяца догнать минимум до 50% от среднего по конкурентам.'
-    });
-  }
-
-  // 2. Показы
-  const ourImpr = getNum('Показы', our.col);
-  const avgImpr = avgComp('Показы');
-  if (ourImpr !== null && avgImpr !== null && ourImpr < avgImpr * 0.5) {
-    recos.push({
-      level: 'danger',
-      title: `Низкая видимость: показы ${fmtNum(ourImpr)} vs ${fmtNum(avgImpr)} у конкурентов`,
-      desc: 'Карточка плохо ранжируется. Проверьте: (1) SEO-заголовок и описание — добавьте ключевые слова из листа «Поисковые запросы» по всем артикулам; (2) рекламные ставки в АРК WB; (3) полноту атрибутов карточки (характеристики, размерная сетка); (4) скорость продаж — растущая скорость поднимает в выдаче.'
-    });
-  }
-
-  // 3. CTR
-  const ourCtr = getNum('CTR', our.col);
-  const avgCtr = avgComp('CTR');
-  if (ourCtr !== null && avgCtr !== null && ourCtr < avgCtr * 0.85) {
-    recos.push({
-      level: 'warn',
-      title: `CTR ниже конкурентов: ${fmtNum(ourCtr)}% vs ${fmtNum(avgCtr)}%`,
-      desc: 'Из тех, кто видит карточку в выдаче, к вам кликает меньше. Главное — главное фото. Сделайте инфографику с УТП, протестируйте 3-5 вариантов превью, добавьте контрастные цвета и читаемый текст. Также проверьте цену — если она выше конкурентов, при равном фото CTR падает.'
-    });
-  }
-
-  // 4. Конверсия в корзину
-  const ourCrCart = getNum('Конверсия в корзину, %', our.col);
-  const avgCrCart = avgComp('Конверсия в корзину, %');
-  if (ourCrCart !== null && avgCrCart !== null && ourCrCart < avgCrCart * 0.85) {
-    recos.push({
-      level: 'warn',
-      title: `Конверсия в корзину: ${fmtNum(ourCrCart)}% vs ${fmtNum(avgCrCart)}% у конкурентов`,
-      desc: 'Зашли — но не положили. Слабое место — описание и контент карточки. Добавьте видео или 360°, расширьте галерею до 8-10 фото с разных ракурсов, опишите кейсы использования, добавьте размерную сетку и инструкцию. Проверьте отрицательные отзывы — частые жалобы бьют по конверсии.'
-    });
-  }
-
-  // 5. Конверсия в заказ
-  const ourCrOrder = getNum('Конверсия в заказ, %', our.col);
-  const avgCrOrder = avgComp('Конверсия в заказ, %');
-  if (ourCrOrder !== null && avgCrOrder !== null && ourCrOrder < avgCrOrder * 0.85) {
-    recos.push({
-      level: 'warn',
-      title: `Конверсия в заказ: ${fmtNum(ourCrOrder)}% vs ${fmtNum(avgCrOrder)}% — клиенты бросают корзину`,
-      desc: 'Из корзины не доходят до заказа. Чаще всего это про время доставки и цену. Сравните своё время доставки и цену с конкурентами в таблице. Если время доставки больше — расширяйте присутствие на региональных складах. Если цена выше при равном товаре — пересмотрите СПП.'
-    });
-  }
-
-  // 6. Среднее время доставки
-  const ourDel = String(metrics['Среднее время доставки']?.[our.col] || '');
-  const compDel = competitors.map(c => String(metrics['Среднее время доставки']?.[c.col] || '')).filter(s => s);
-  // парсим "1д 5ч"
-  const parseDel = s => {
-    const m = String(s).match(/(\d+)\s*д.*?(\d+)\s*ч/);
-    return m ? parseInt(m[1])*24 + parseInt(m[2]) : null;
-  };
-  const ourDelHours = parseDel(ourDel);
-  const compDelHours = compDel.map(parseDel).filter(v => v !== null);
-  if (ourDelHours !== null && compDelHours.length && ourDelHours < Math.min(...compDelHours)) {
-    recos.push({
-      level: 'info',
-      title: `Время доставки лучше всех конкурентов: ${ourDel}`,
-      desc: 'Это сильное преимущество. Используйте его в инфографике главного фото («Доставка за 1 день») и в рекламных кампаниях. На WB время доставки напрямую влияет на ранжирование.'
-    });
-  }
-
-  // 7. Цена
-  const ourPrice = getNum('Медианная цена покупателя, ₽', our.col);
-  const avgPrice = avgComp('Медианная цена покупателя, ₽');
-  if (ourPrice !== null && avgPrice !== null && ourPrice < avgPrice * 0.95) {
-    recos.push({
-      level: 'info',
-      title: `Цена ниже среднего: ${fmtNum(ourPrice)} ₽ vs ${fmtNum(avgPrice)} ₽`,
-      desc: 'У вас цена дешевле. Это плюс для конверсии, но если маржа позволяет — есть запас на рекламу или СПП. Если же все остальные метрики ниже — низкая цена не помогает, проблема не в цене, а в качестве карточки и доверии.'
-    });
-  }
-  if (ourPrice !== null && avgPrice !== null && ourPrice > avgPrice * 1.10 && ourCrOrder !== null && avgCrOrder !== null && ourCrOrder < avgCrOrder) {
-    recos.push({
-      level: 'warn',
-      title: `Цена выше конкурентов: ${fmtNum(ourPrice)} ₽ vs ${fmtNum(avgPrice)} ₽, и конверсия страдает`,
-      desc: 'Ваша цена выше рынка, и это бьёт по конверсии. Либо уравняйте цену, либо обоснуйте премию: уникальный контент карточки, отзывы, видео, дополнительные характеристики.'
-    });
-  }
-
-  // 8. % выкупа
-  const ourBuyout = getNum('Процент выкупа', our.col);
-  const avgBuyout = avgComp('Процент выкупа');
-  if (ourBuyout !== null && avgBuyout !== null && ourBuyout < avgBuyout * 0.95) {
-    recos.push({
-      level: 'warn',
-      title: `% выкупа ниже среднего: ${fmtNum(ourBuyout)}% vs ${fmtNum(avgBuyout)}%`,
-      desc: 'Чаще выкупов меньше из-за: несоответствия фото и реальности, проблем с упаковкой (повреждается в пути), плохого контроля качества. Проверьте отрицательные отзывы и пересмотрите фото — оно должно показывать реальный товар без перенасыщения.'
-    });
-  }
-
-  // 9. Средняя позиция
-  const ourPos = getNum('Средняя позиция', our.col);
-  const avgPos = avgComp('Средняя позиция');
-  if (ourPos !== null && avgPos !== null && ourPos > avgPos * 1.5) {
-    recos.push({
-      level: 'warn',
-      title: `Средняя позиция в выдаче: ${fmtNum(ourPos)} vs ${fmtNum(avgPos)} у конкурентов`,
-      desc: 'Карточка глубоко в выдаче. Это следствие: низкой скорости заказов, малого количества отзывов, неполных характеристик. Поднимать позицию — задача для рекламы (АРК) и постепенного роста продаж. Запустите внутреннюю рекламу по ключам с высоким спросом из листа «Поисковые запросы».'
-    });
-  }
-
-  // Если рекомендаций нет
-  if (!recos.length) {
-    recos.push({
-      level: 'info',
-      title: 'Карточка в норме по всем ключевым метрикам',
-      desc: 'Серьёзных отставаний от конкурентов не обнаружено. Продолжайте мониторить метрики еженедельно и оптимизировать точечно.'
-    });
-  }
-
-  let html = `<div class="card"><div class="section-head"><h2>Что улучшить</h2><div class="desc">Конкретные действия, отсортированы по критичности.</div></div>`;
-  html += `<div class="recommendations">`;
-  for (const r of recos) {
-    html += `<div class="reco-item ${r.level}">`;
-    html += `<div class="reco-title">${r.title}</div>`;
-    html += `<div class="reco-desc">${r.desc}</div>`;
-    html += `</div>`;
-  }
-  html += `</div></div>`;
-  return html;
-}
-
-// =====================================================
-// SEARCH QUERIES
-// =====================================================
-function renderSearchQueries(articles, querySheets) {
-  let html = `<div class="card"><div class="section-head"><h2>Поисковые запросы</h2><div class="desc">По каким запросам приходят клиенты к каждой карточке. Сравните, по чему ловят конкуренты.</div></div>`;
-
-  // Tabs
-  html += `<div class="queries-tabs">`;
-  for (let i = 0; i < articles.length; i++) {
-    const a = articles[i];
-    const has = querySheets[a.art];
-    if (!has) continue;
-    html += `<button class="queries-tab ${i === 0 ? 'active' : ''} ${a.isOur ? 'our' : ''}" onclick="switchQueryTab(this, '${a.art}')">${a.isOur ? '⭐ ' : ''}арт. ${a.art} (${has.length})</button>`;
-  }
-  html += `</div>`;
-
-  // Tab contents
-  for (let i = 0; i < articles.length; i++) {
-    const a = articles[i];
-    const rows = querySheets[a.art];
-    if (!rows) continue;
-    html += `<div id="qtab-${a.art}" class="qtab-content" style="${i === 0 ? '' : 'display:none'}">`;
-    html += `<div style="overflow-x:auto"><table class="metrics-table"><thead><tr>`;
-    html += `<th>Запрос</th><th>Кол-во</th><th>Δ к пред. периоду</th><th>В корзину, %</th><th>В заказ, %</th>`;
-    html += `</tr></thead><tbody>`;
-    // Топ-30
-    const top = rows.slice(0, 30);
-    for (const r of top) {
-      const q = r[0] || '';
-      const cnt = r[1];
-      const cntPrev = r[2];
-      const crCart = r[3];
-      const crOrd = r[5];
-      const delta = (typeof cnt === 'number' && typeof cntPrev === 'number') ? cnt - cntPrev : null;
-      const deltaCls = delta === null ? '' : (delta > 0 ? 'delta-good' : delta < 0 ? 'delta-bad' : 'delta-neutral');
-      html += `<tr>`;
-      html += `<td>${q}</td>`;
-      html += `<td>${fmtNum(cnt)}</td>`;
-      html += `<td class="${deltaCls}">${delta !== null ? fmtDelta(delta) : '—'}</td>`;
-      html += `<td>${fmtNum(crCart)}${typeof crCart === 'number' ? '%' : ''}</td>`;
-      html += `<td>${fmtNum(crOrd)}${typeof crOrd === 'number' ? '%' : ''}</td>`;
-      html += `</tr>`;
-    }
-    html += `</tbody></table></div>`;
-    if (rows.length > 30) html += `<div style="margin-top:8px;font-size:12px;color:var(--text-faded)">Показаны первые 30 из ${rows.length} запросов</div>`;
-    html += `</div>`;
-  }
-  html += `</div>`;
-  return html;
-}
-
-window.switchQueryTab = function(btn, art) {
-  document.querySelectorAll('.queries-tab').forEach(t => t.classList.remove('active'));
-  btn.classList.add('active');
-  document.querySelectorAll('.qtab-content').forEach(c => c.style.display = 'none');
-  document.getElementById(`qtab-${art}`).style.display = '';
-};
-
-// =====================================================
-// STOCKS
-// =====================================================
-function renderStocks(articles, stocksRows) {
-  // Группировка по артикулу
-  const byArt = {};
-  for (const r of stocksRows) {
-    const art = String(r[1]);
-    if (!byArt[art]) byArt[art] = [];
-    byArt[art].push({
-      region: r[4] || '—',
-      warehouse: r[5] || '—',
-      stock: r[6] || 0,
-      inWay: r[7] || 0,
-      sales: r[9] || 0,
-    });
-  }
-
-  let html = `<div class="card"><div class="section-head"><h2>Остатки и регионы</h2><div class="desc">Распределение запасов по складам — влияет на скорость доставки.</div></div>`;
-
-  // Сводка
-  html += `<div class="stocks-summary">`;
-  for (const a of articles) {
-    const items = byArt[a.art] || [];
-    const totalStock = items.reduce((s,i)=>s+(parseFloat(i.stock)||0),0);
-    const totalSales = items.reduce((s,i)=>s+(parseFloat(i.sales)||0),0);
-    const days = totalSales > 0 ? Math.round(totalStock / totalSales) : '∞';
-    html += `<div class="stock-tile" ${a.isOur ? 'style="border-color: var(--primary)"' : ''}>`;
-    html += `<div class="art">${a.isOur ? '⭐ ' : ''}арт. ${a.art}</div>`;
-    html += `<div class="total">${fmtNum(totalStock)} шт</div>`;
-    html += `<div class="label">${items.length} складов · ~${days} дней покрытия</div>`;
-    html += `</div>`;
-  }
-  html += `</div>`;
-
-  // Детали по нашему артикулу
-  const ourArt = articles[0].art;
-  const ourStocks = byArt[ourArt] || [];
-  if (ourStocks.length) {
-    html += `<h3 style="margin-top:18px">Распределение по складам — наш товар</h3>`;
-    ourStocks.sort((a,b) => (parseFloat(b.stock)||0) - (parseFloat(a.stock)||0));
-    html += `<div style="overflow-x:auto"><table class="metrics-table"><thead><tr>`;
-    html += `<th>Регион</th><th>Склад</th><th>Остаток</th><th>В пути</th><th>Заказы/день</th><th>Дней покрытия</th>`;
-    html += `</tr></thead><tbody>`;
-    for (const s of ourStocks) {
-      const stock = parseFloat(s.stock) || 0;
-      const sales = parseFloat(s.sales) || 0;
-      const days = sales > 0 ? (stock / sales).toFixed(1) : '∞';
-      const lowStock = sales > 0 && stock / sales < 14;
-      html += `<tr ${lowStock ? 'class="row-bad"' : ''}>`;
-      html += `<td>${s.region}</td>`;
-      html += `<td>${s.warehouse}</td>`;
-      html += `<td>${fmtNum(stock)}</td>`;
-      html += `<td>${fmtNum(s.inWay)}</td>`;
-      html += `<td>${fmtNum(sales)}</td>`;
-      html += `<td>${days}</td>`;
-      html += `</tr>`;
-    }
-    html += `</tbody></table></div>`;
-    html += `<div style="margin-top:8px;font-size:12px;color:var(--text-faded)">Красным — склады, где остатков меньше чем на 14 дней.</div>`;
-  }
-
-  html += `</div>`;
-  return html;
-}
-
+renderAll();
 </script>
 </body>
 </html>
