@@ -449,19 +449,86 @@ let OUR_ARTICLE = null;
 let activeQueryTab = 'all';
 let econState = { margin: 20, drr: 10 };
 
-function wbBasket(vol) {
-  const ranges = [[143,'01'],[287,'02'],[431,'03'],[719,'04'],[1007,'05'],[1061,'06'],[1115,'07'],[1169,'08'],[1313,'09'],[1601,'10'],[1655,'11'],[1919,'12'],[2045,'13'],[2189,'14'],[2405,'15'],[2621,'16'],[2837,'17'],[3053,'18'],[3269,'19'],[3485,'20'],[3701,'21'],[3917,'22'],[4133,'23'],[4349,'24'],[4565,'25'],[4877,'26'],[5189,'27'],[5501,'28'],[5813,'29'],[6125,'30'],[6437,'31'],[6749,'32'],[7061,'33'],[7405,'34'],[7861,'35'],[8317,'36'],[8773,'37'],[9229,'38'],[9685,'39'],[10141,'40'],[10597,'41'],[11053,'42'],[11509,'43'],[11965,'44']];
-  for (const [v,b] of ranges) if (vol <= v) return b;
-  return '45';
-}
-function wbPhotoUrl(nm) {
+function wbPhotoUrls(nm) {
   nm = parseInt(nm);
-  if (!nm) return null;
+  if (!nm) return [];
   const vol = Math.floor(nm / 100000);
   const part = Math.floor(nm / 1000);
-  const b = wbBasket(vol);
-  return `https://basket-${b}.wbbasket.ru/vol${vol}/part${part}/${nm}/images/tm/1.webp`;
+  // Стартовый basket по приближённой таблице, плюс пробуем соседние
+  let startBasket;
+  if (vol <= 143) startBasket = 1;
+  else if (vol <= 287) startBasket = 2;
+  else if (vol <= 431) startBasket = 3;
+  else if (vol <= 719) startBasket = 4;
+  else if (vol <= 1007) startBasket = 5;
+  else if (vol <= 1061) startBasket = 6;
+  else if (vol <= 1115) startBasket = 7;
+  else if (vol <= 1169) startBasket = 8;
+  else if (vol <= 1313) startBasket = 9;
+  else if (vol <= 1601) startBasket = 10;
+  else if (vol <= 1655) startBasket = 11;
+  else if (vol <= 1919) startBasket = 12;
+  else if (vol <= 2045) startBasket = 13;
+  else if (vol <= 2189) startBasket = 14;
+  else if (vol <= 2405) startBasket = 15;
+  else if (vol <= 2621) startBasket = 16;
+  else if (vol <= 2837) startBasket = 17;
+  else if (vol <= 3053) startBasket = 18;
+  else if (vol <= 3269) startBasket = 19;
+  else if (vol <= 3485) startBasket = 20;
+  else if (vol <= 3701) startBasket = 21;
+  else if (vol <= 3917) startBasket = 22;
+  else if (vol <= 4133) startBasket = 23;
+  else if (vol <= 4349) startBasket = 24;
+  else if (vol <= 4565) startBasket = 25;
+  else if (vol <= 4877) startBasket = 26;
+  else if (vol <= 5189) startBasket = 27;
+  else if (vol <= 5501) startBasket = 28;
+  else if (vol <= 5813) startBasket = 29;
+  else if (vol <= 6125) startBasket = 30;
+  else if (vol <= 6437) startBasket = 31;
+  else if (vol <= 6749) startBasket = 32;
+  else if (vol <= 7061) startBasket = 33;
+  else if (vol <= 7405) startBasket = 34;
+  else if (vol <= 7861) startBasket = 35;
+  else if (vol <= 8317) startBasket = 36;
+  else if (vol <= 8773) startBasket = 37;
+  else if (vol <= 9229) startBasket = 38;
+  else if (vol <= 9685) startBasket = 39;
+  else if (vol <= 10141) startBasket = 40;
+  else if (vol <= 10597) startBasket = 41;
+  else if (vol <= 11053) startBasket = 42;
+  else if (vol <= 11509) startBasket = 43;
+  else startBasket = 44;
+  // Возвращаем стартовый и +-3 соседних basket
+  const baskets = [startBasket];
+  for (let delta = 1; delta <= 3; delta++) {
+    if (startBasket + delta <= 50) baskets.push(startBasket + delta);
+    if (startBasket - delta >= 1) baskets.push(startBasket - delta);
+  }
+  return baskets.map(b => `https://basket-${String(b).padStart(2,'0')}.wbbasket.ru/vol${vol}/part${part}/${nm}/images/tm/1.webp`);
 }
+
+// Старая функция оставляем для совместимости: возвращает первый URL
+function wbPhotoUrl(nm) {
+  const urls = wbPhotoUrls(nm);
+  return urls.length ? urls[0] : null;
+}
+
+// Глобальный обработчик для fallback по списку basket
+window.__wbPhotoFallback = function(img, nm) {
+  if (!img.__urls) {
+    img.__urls = wbPhotoUrls(nm);
+    img.__urlIdx = 0;
+  }
+  img.__urlIdx++;
+  if (img.__urlIdx < img.__urls.length) {
+    img.src = img.__urls[img.__urlIdx];
+  } else {
+    img.style.display = 'none';
+    if (img.nextElementSibling) img.nextElementSibling.style.display = 'flex';
+  }
+};
 
 function fmtNum(v) {
   if (v === null || v === undefined || v === '' || v === '-') return '—';
@@ -522,7 +589,7 @@ function renderArticlesBar() {
     const photoUrl = wbPhotoUrl(id);
     return `<div class="article-card ${isOur ? 'our' : ''}">
       <div class="article-thumb">
-        ${photoUrl ? `<img src="${photoUrl}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" alt="${id}"><span class="fallback" style="display:none">🏖️</span>` : `<span class="fallback">🏖️</span>`}
+        ${photoUrl ? `<img src="${photoUrl}" onerror="window.__wbPhotoFallback(this, '${id}')" alt="${id}"><span class="fallback" style="display:none">🏖️</span>` : `<span class="fallback">🏖️</span>`}
       </div>
       <div class="article-meta">
         <div class="article-id">${id}</div>
@@ -536,23 +603,19 @@ function renderArticlesBar() {
 
 const METRIC_GROUPS = [
   { title: 'РЕЙТИНГИ И ЦЕНЫ', metrics: [
-    'Рейтинг карточки', 'Рейтинг по отзывам', 'Количество отзывов',
-    'Минимальная цена со скидкой (по размерам), ₽',
-    'Максимальная цена со скидкой (по размерам), ₽',
+    'Рейтинг по отзывам', 'Количество отзывов',
     'Медианная цена покупателя, ₽',
     'Среднее время доставки', 'Средняя позиция',
   ]},
   { title: 'ВОРОНКА ПРОДАЖ', metrics: [
     'Показы', 'Переход в карточку, шт', 'CTR',
-    'Добавления в корзину, шт', 'Конверсия в корзину, %',
+    'Конверсия в корзину, %',
     'Заказы, шт', 'Конверсия в заказ, %',
-    'Выкупы, шт', 'Процент выкупа', 'Отмены, шт',
+    'Процент выкупа',
   ]},
 ];
 const INVERTED = new Set([
-  'Среднее время доставки', 'Средняя позиция', 'Отмены, шт',
-  'Минимальная цена со скидкой (по размерам), ₽',
-  'Максимальная цена со скидкой (по размерам), ₽',
+  'Среднее время доставки', 'Средняя позиция',
   'Медианная цена покупателя, ₽',
 ]);
 
@@ -628,13 +691,26 @@ function renderMetricsTable() {
   const arts = getArticles();
   const articleIds = Object.values(arts);
 
+  // Хелпер для миниатюры артикула в шапке
+  const thumbHtml = (id, isOur) => {
+    const photoUrl = wbPhotoUrl(id);
+    const color = isOur ? 'var(--accent-2)' : 'var(--text-1)';
+    return `<div style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:4px 0">
+      <div style="width:42px;height:42px;border-radius:8px;background:var(--bg-3);overflow:hidden;display:flex;align-items:center;justify-content:center;${isOur?'box-shadow:0 0 0 2px rgba(168,184,201,0.4)':''}">
+        ${photoUrl ? `<img src="${photoUrl}" style="width:100%;height:100%;object-fit:cover" onerror="window.__wbPhotoFallback(this, '${id}')"><span style="display:none;font-size:18px">🏖️</span>` : '<span style="font-size:18px">🏖️</span>'}
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:11px;color:${color}">${id}</div>
+      ${isOur ? '<div style="font-size:9px;color:var(--accent-2);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-top:-2px">наш</div>' : ''}
+    </div>`;
+  };
+
   let thead = '<thead><tr><th>Показатель</th>';
-  thead += '<th style="background:var(--bg-2);color:var(--accent-2)">Наш<br><small style="font-family:JetBrains Mono,monospace;font-weight:600">' + OUR_ARTICLE + '</small></th>';
+  thead += `<th style="background:var(--bg-2)">${thumbHtml(OUR_ARTICLE, true)}</th>`;
   thead += '<th>Среднее<br><small style="color:var(--text-3);font-weight:500">по конкурентам</small></th>';
   thead += '<th>Лучшее<br><small style="color:var(--text-3);font-weight:500">по конкурентам</small></th>';
   for (const id of articleIds) {
     if (id === OUR_ARTICLE) continue;
-    thead += `<th>${id}</th>`;
+    thead += `<th>${thumbHtml(id, false)}</th>`;
   }
   thead += '</tr></thead>';
 
@@ -1250,7 +1326,7 @@ function renderCommonQueries() {
     thead += `<th colspan="2" style="text-align:center;border-left:1px solid var(--border-soft);background:${isOur?'rgba(168,184,201,0.06)':'var(--bg-2)'};padding-bottom:8px">
       <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
         <div style="width:36px;height:36px;border-radius:7px;background:var(--bg-3);overflow:hidden;display:flex;align-items:center;justify-content:center">
-          ${photoUrl ? `<img src="${photoUrl}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span style="display:none;font-size:14px">🏖️</span>` : '<span style="font-size:14px">🏖️</span>'}
+          ${photoUrl ? `<img src="${photoUrl}" style="width:100%;height:100%;object-fit:cover" onerror="window.__wbPhotoFallback(this, '${id}')"><span style="display:none;font-size:14px">🏖️</span>` : '<span style="font-size:14px">🏖️</span>'}
         </div>
         <div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:11px;${isOur?'color:var(--accent-2)':'color:var(--text-1)'}">${id}</div>
         ${isOur ? '<div style="font-size:9px;color:var(--accent-2);font-weight:700;text-transform:uppercase;letter-spacing:0.06em">наш</div>' : ''}
