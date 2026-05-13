@@ -38,8 +38,8 @@ body { background: radial-gradient(1200px 600px at 80% -10%, rgba(139, 157, 195,
 .info-item .label { font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
 .info-item .value { font-size: 14px; color: var(--text-1); font-weight: 600; font-family: 'JetBrains Mono', monospace; }
 .period-switcher { display: inline-flex; background: var(--bg-2); border: 1px solid var(--border); border-radius: 12px; padding: 4px; gap: 2px; }
-.period-btn { padding: 8px 18px; border-radius: 8px; background: transparent; border: none; color: var(--text-2); cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 600; transition: all 0.2s; }
-.period-btn.active { background: var(--bg-3); color: var(--text-1); border: 1px solid var(--border); }
+.period-btn { padding: 8px 18px; border-radius: 8px; background: transparent; border: 1px solid transparent; color: var(--text-2); cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 600; transition: all 0.2s; }
+.period-btn.active { background: rgba(139, 157, 195, 0.18); color: var(--text-1); border-color: rgba(139, 157, 195, 0.4); }
 .period-btn:hover:not(.active) { color: var(--text-1); background: var(--bg-3); }
 .articles-bar { display: flex; gap: 12px; overflow-x: auto; padding: 18px; background: var(--bg-1); border: 1px solid var(--border-soft); border-radius: 16px; margin-bottom: 28px; scrollbar-width: thin; }
 .article-card { flex: 0 0 auto; display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: var(--bg-2); border: 1px solid var(--border); border-radius: 12px; min-width: 220px; transition: all 0.2s; }
@@ -133,7 +133,7 @@ tr.row-winning td:first-child { border-left: 2px solid var(--good); padding-left
 .days-good { color: var(--good); }
 .queries-tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
 .qtab { padding: 8px 14px; background: var(--bg-2); border: 1px solid var(--border); border-radius: 8px; color: var(--text-2); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; transition: all 0.2s; }
-.qtab.active { background: var(--bg-3); border-color: var(--border); color: var(--text-1); }
+.qtab.active { background: rgba(168, 184, 201, 0.18); color: var(--text-1); border-color: rgba(168, 184, 201, 0.4); }
 .qtab:hover:not(.active) { background: var(--bg-3); }
 table.queries { width: 100%; border-collapse: collapse; font-size: 12px; }
 table.queries th, table.queries td { padding: 10px 12px; text-align: right; border-bottom: 1px solid var(--border-soft); }
@@ -155,7 +155,7 @@ table.queries th:first-child, table.queries td:first-child { text-align: left; }
 /* === INSIGHTS === */
 .insights-tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
 .itab { padding: 9px 14px; background: var(--bg-2); border: 1px solid var(--border); border-radius: 8px; color: var(--text-2); cursor: pointer; font-family: inherit; font-size: 12px; font-weight: 600; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
-.itab.active { background: var(--bg-3); color: var(--text-1); border-color: var(--border); }
+.itab.active { background: rgba(168, 184, 201, 0.18); color: var(--text-1); border-color: rgba(168, 184, 201, 0.4); }
 .itab:hover:not(.active) { background: var(--bg-3); }
 .itab .count { background: var(--bg-0); color: var(--text-2); padding: 1px 7px; border-radius: 10px; font-size: 10px; font-family: 'JetBrains Mono', monospace; }
 .itab.active .count { background: var(--bg-0); color: var(--text-1); }
@@ -175,6 +175,94 @@ table.queries th:first-child, table.queries td:first-child { text-align: left; }
 .insight-meta-value.good { color: var(--good); }
 .insight-meta-value.bad { color: var(--bad); }
 .insight-empty { padding: 30px; text-align: center; color: var(--text-3); font-size: 12px; background: var(--bg-2); border-radius: 10px; }
+
+/* === PAGE TABS === */
+.page-tabs { display: flex; gap: 4px; background: var(--bg-1); border: 1px solid var(--border); border-radius: 14px; padding: 5px; margin-bottom: 24px; width: fit-content; }
+.page-tab { padding: 10px 22px; background: transparent; border: 1px solid transparent; color: var(--text-2); cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 600; border-radius: 10px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+.page-tab.active { background: rgba(168, 184, 201, 0.18); color: var(--text-1); border-color: rgba(168, 184, 201, 0.4); }
+.page-tab:hover:not(.active) { color: var(--text-1); background: var(--bg-3); }
+.page-tab-icon { width: 16px; height: 16px; display: inline-block; }
+.page { display: none; }
+.page.active { display: block; }
+
+/* === GROWTH PAGE === */
+.lost-rev-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 20px; }
+@media (max-width: 768px) { .lost-rev-summary { grid-template-columns: 1fr; } }
+.lost-rev-big { background: var(--bg-2); border: 1px solid var(--border-soft); border-radius: 14px; padding: 22px 26px; }
+.lost-rev-big .label { font-size: 12px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 12px; }
+.lost-rev-big .big { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 32px; color: var(--text-1); letter-spacing: -0.02em; }
+.lost-rev-big .sub { font-size: 12px; color: var(--text-2); margin-top: 8px; }
+.lost-rev-list { display: flex; flex-direction: column; gap: 8px; }
+.lost-rev-item { background: var(--bg-2); border: 1px solid var(--border-soft); border-radius: 10px; padding: 12px 16px; display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; }
+.lost-rev-q { font-weight: 600; color: var(--text-1); font-size: 13px; }
+.lost-rev-funnel { display: flex; gap: 16px; margin-top: 6px; font-size: 11px; color: var(--text-3); flex-wrap: wrap; }
+.lost-rev-funnel b { color: var(--text-2); font-family: 'JetBrains Mono', monospace; }
+.lost-rev-amount { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 16px; color: var(--bad); text-align: right; }
+.lost-rev-amount small { display: block; color: var(--text-3); font-size: 10px; font-weight: 500; margin-top: 2px; }
+
+/* === SHARE BAR === */
+.share-bar { display: flex; flex-direction: column; gap: 10px; }
+.share-row { display: grid; grid-template-columns: 180px 1fr 110px; align-items: center; gap: 12px; }
+.share-art { display: flex; align-items: center; gap: 10px; }
+.share-thumb { width: 36px; height: 36px; border-radius: 8px; background: var(--bg-3); overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.share-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.share-art-id { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--text-1); }
+.share-art-badge { font-size: 9px; color: var(--accent-2); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+.share-bar-bg { position: relative; height: 28px; background: var(--bg-3); border-radius: 6px; overflow: hidden; }
+.share-bar-fill { position: absolute; left: 0; top: 0; bottom: 0; background: rgba(139, 157, 195, 0.45); border-radius: 6px; transition: width 0.5s ease; }
+.share-bar-fill.our { background: rgba(168, 184, 201, 0.65); }
+.share-bar-label { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 11px; font-weight: 600; color: var(--text-1); z-index: 1; font-family: 'JetBrains Mono', monospace; }
+.share-pct { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 14px; color: var(--text-1); text-align: right; }
+.share-pct.our { color: var(--accent-2); }
+
+/* === TOKENS === */
+.tokens-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+@media (max-width: 1024px) { .tokens-grid { grid-template-columns: 1fr; } }
+.tokens-block { background: var(--bg-2); border: 1px solid var(--border-soft); border-radius: 12px; padding: 18px; }
+.tokens-block h3 { font-size: 13px; font-weight: 700; margin-bottom: 14px; color: var(--text-1); }
+.tokens-block .hint { font-size: 11px; color: var(--text-3); margin-bottom: 14px; font-style: italic; }
+.tokens-cloud { display: flex; flex-wrap: wrap; gap: 8px; }
+.token-chip { padding: 6px 10px; background: var(--bg-3); border: 1px solid var(--border); border-radius: 16px; font-size: 12px; font-weight: 600; color: var(--text-1); display: inline-flex; align-items: center; gap: 6px; }
+.token-chip.in-name { border-color: rgba(122, 176, 151, 0.4); }
+.token-chip.missing { border-color: rgba(201, 138, 138, 0.4); }
+.token-chip .freq { font-size: 10px; color: var(--text-3); font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+
+/* === WAREHOUSE READINESS === */
+.readiness-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 18px; }
+.readiness-card { background: var(--bg-2); border: 1px solid var(--border-soft); border-left: 2px solid var(--text-3); border-radius: 10px; padding: 14px 16px; }
+.readiness-card.critical { border-left-color: var(--bad); }
+.readiness-card.warn { border-left-color: var(--warn); }
+.readiness-card.ok { border-left-color: var(--good); }
+.readiness-card .name { font-size: 12px; font-weight: 600; color: var(--text-1); margin-bottom: 6px; }
+.readiness-card .name small { display: block; color: var(--text-3); font-size: 10px; font-weight: 400; margin-top: 2px; }
+.readiness-card .value { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 18px; color: var(--text-1); }
+.readiness-card .sub { font-size: 11px; color: var(--text-3); margin-top: 4px; }
+
+/* === SEO === */
+.seo-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 18px; }
+.seo-stat { background: var(--bg-2); border: 1px solid var(--border-soft); border-radius: 12px; padding: 14px 16px; }
+.seo-stat .label { font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 6px; }
+.seo-stat .value { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 22px; color: var(--text-1); }
+.seo-stat .value.good { color: var(--good); }
+.seo-stat .value.bad { color: var(--bad); }
+.seo-current-name { background: var(--bg-2); border: 1px solid var(--border-soft); border-radius: 12px; padding: 14px 18px; margin-bottom: 18px; }
+.seo-current-name .label { font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 6px; }
+.seo-current-name .name { font-size: 14px; color: var(--text-1); font-weight: 600; }
+.seo-group { margin-bottom: 18px; }
+.seo-group-title { font-size: 13px; font-weight: 700; color: var(--text-1); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.seo-group-title .badge { background: var(--bg-3); color: var(--text-2); padding: 2px 8px; border-radius: 10px; font-size: 11px; font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+.seo-cloud { display: flex; flex-wrap: wrap; gap: 8px; }
+.seo-word { padding: 7px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; font-family: 'JetBrains Mono', monospace; transition: all 0.2s; }
+.seo-word.missing { background: rgba(201, 138, 138, 0.10); border: 1px solid rgba(201, 138, 138, 0.3); color: var(--text-1); }
+.seo-word.in-name { background: rgba(122, 176, 151, 0.08); border: 1px solid rgba(122, 176, 151, 0.25); color: var(--text-2); }
+.seo-word .freq { font-size: 10px; color: var(--text-3); font-weight: 700; }
+.seo-word .growing { color: var(--accent-2); font-size: 11px; }
+.seo-word.missing:hover { background: rgba(201, 138, 138, 0.15); transform: translateY(-1px); }
+.seo-hint { font-size: 11px; color: var(--text-3); font-style: italic; margin-bottom: 14px; }
+.seo-copy-btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; background: var(--bg-3); border: 1px solid var(--border); border-radius: 8px; color: var(--text-1); cursor: pointer; font-family: inherit; font-size: 12px; font-weight: 600; transition: all 0.2s; margin-left: auto; }
+.seo-copy-btn:hover { background: rgba(168, 184, 201, 0.18); border-color: rgba(168, 184, 201, 0.4); }
+.seo-copy-btn.copied { background: rgba(122, 176, 151, 0.18); border-color: rgba(122, 176, 151, 0.4); color: var(--good); }
+.seo-group-title { display: flex; align-items: center; gap: 8px; }
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: var(--bg-1); }
 ::-webkit-scrollbar-thumb { background: var(--bg-3); border-radius: 5px; }
@@ -209,6 +297,12 @@ table.queries th:first-child, table.queries td:first-child { text-align: left; }
       </label>
     </div>
   </div>
+  <div class="page-tabs">
+    <button class="page-tab active" data-page="main">📊 Сравнение</button>
+    <button class="page-tab" data-page="queries">🔍 Аналитика запросов</button>
+  </div>
+
+  <div class="page active" id="pageMain">
   <div class="info-bar" id="infoBar"></div>
   <div class="articles-bar" id="articlesBar"></div>
   <div class="alerts-section">
@@ -233,19 +327,6 @@ table.queries th:first-child, table.queries td:first-child { text-align: left; }
       </div>
     </div>
     <div class="dynamics-grid" id="dynamicsGrid"></div>
-  </div>
-
-  <!-- INSIGHTS -->
-  <div class="section">
-    <div class="section-header">
-      <div>
-        <div class="section-title"><span class="dot"></span>Поисковые инсайты</div>
-        <div class="section-subtitle">Что делать с рекламой и SEO на основе данных по запросам</div>
-      </div>
-    </div>
-    <div class="insights-tabs" id="insightsTabs"></div>
-    <div class="insight-desc" id="insightDesc"></div>
-    <div id="insightList"></div>
   </div>
 
   <div class="section">
@@ -306,6 +387,58 @@ table.queries th:first-child, table.queries td:first-child { text-align: left; }
       <table class="queries" id="queriesTable"></table>
     </div>
   </div>
+  </div><!-- /pageMain -->
+
+  <div class="page" id="pageQueries">
+    <!-- INSIGHTS -->
+    <div class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-title"><span class="dot"></span>Поисковые инсайты</div>
+          <div class="section-subtitle">Что делать с рекламой и SEO на основе данных по запросам нашего артикула</div>
+        </div>
+      </div>
+      <div class="insights-tabs" id="insightsTabs"></div>
+      <div class="insight-desc" id="insightDesc"></div>
+      <div id="insightList"></div>
+    </div>
+
+    <!-- ALL QUERIES TABLE -->
+    <div class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-title"><span class="dot"></span>Все запросы нашего артикула</div>
+          <div class="section-subtitle">Полная таблица из отчёта WB. Сортировка по клику на заголовок колонки.</div>
+        </div>
+        <input type="text" id="queryFilter" placeholder="🔍 Фильтр по запросу..." class="editable" style="width: 260px; padding: 8px 12px; font-family: inherit;">
+      </div>
+      <div style="overflow-x:auto">
+        <table class="queries" id="allQueriesTable"></table>
+      </div>
+    </div>
+
+    <!-- COMMON QUERIES VS COMPETITORS -->
+    <div class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-title"><span class="dot"></span>Сравнение по топ-запросам</div>
+        </div>
+      </div>
+      <div id="commonQueriesList"></div>
+    </div>
+
+    <!-- SEO BLOCK -->
+    <div class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-title"><span class="dot"></span>Слова для SEO</div>
+          <div class="section-subtitle">Самые конвертирующие слова из запросов (CR в корзину ≥ 15%) у всех артикулов + слова из растущих запросов нашего</div>
+        </div>
+      </div>
+      <div id="seoBlock"></div>
+    </div>
+  </div><!-- /pageQueries -->
+
   <div class="footer">Данные из отчёта Wildberries «Сравнение карточек» · обрабатывается локально в браузере</div>
 </div>
 <script>
@@ -1022,6 +1155,336 @@ function renderInsights() {
   document.getElementById('insightList').innerHTML = html;
 }
 
+/* === ALL QUERIES TABLE === */
+let queryFilter = '';
+let querySort = { col: 'count_cur', dir: 'desc' };
+
+function renderAllQueries() {
+  const list = (DATA.queries_by_article || {})[OUR_ARTICLE] || [];
+  const filtered = queryFilter
+    ? list.filter(q => q.query.toLowerCase().includes(queryFilter.toLowerCase()))
+    : list;
+
+  // Сортировка
+  const sorted = [...filtered].sort((a, b) => {
+    const av = toNum(a[querySort.col]) || 0;
+    const bv = toNum(b[querySort.col]) || 0;
+    return querySort.dir === 'desc' ? bv - av : av - bv;
+  });
+
+  const cols = [
+    { key: 'query', label: 'Запрос', sortable: false },
+    { key: 'count_cur', label: 'Запросов', sortable: true },
+    { key: 'count_prev', label: 'Было', sortable: true },
+    { key: 'cart_cur', label: 'CR корзина', sortable: true, suffix: '%' },
+    { key: 'cart_prev', label: 'было', sortable: true, suffix: '%' },
+    { key: 'order_cur', label: 'CR заказ', sortable: true, suffix: '%' },
+    { key: 'order_prev', label: 'было', sortable: true, suffix: '%' },
+  ];
+
+  let thead = '<thead><tr>';
+  for (const c of cols) {
+    const arrow = querySort.col === c.key ? (querySort.dir === 'desc' ? ' ▼' : ' ▲') : '';
+    const align = c.key === 'query' ? 'left' : 'right';
+    thead += `<th style="text-align:${align};${c.sortable?'cursor:pointer':''}" data-sort="${c.key}">${c.label}${arrow}</th>`;
+  }
+  thead += '</tr></thead>';
+
+  let tbody = '<tbody>';
+  if (sorted.length === 0) {
+    tbody += `<tr><td colspan="${cols.length}" style="text-align:center;color:var(--text-3);padding:20px">Ничего не найдено</td></tr>`;
+  } else {
+    for (const q of sorted) {
+      tbody += '<tr>';
+      tbody += `<td class="query-text">${q.query}</td>`;
+      for (let i = 1; i < cols.length; i++) {
+        const c = cols[i];
+        const v = q[c.key];
+        const val = v !== null && v !== undefined && v !== '' ? fmtNum(v) + (c.suffix || '') : '—';
+        const isPrev = c.key.endsWith('_prev');
+        const color = isPrev ? 'color:var(--text-3)' : '';
+        tbody += `<td style="text-align:right;font-family:JetBrains Mono,monospace;font-weight:600;${color}">${val}</td>`;
+      }
+      tbody += '</tr>';
+    }
+  }
+  tbody += '</tbody>';
+  document.getElementById('allQueriesTable').innerHTML = thead + tbody;
+
+  // Sort handlers
+  document.querySelectorAll('#allQueriesTable th[data-sort]').forEach(th => {
+    if (th.dataset.sort === 'query') return;
+    th.addEventListener('click', () => {
+      if (querySort.col === th.dataset.sort) {
+        querySort.dir = querySort.dir === 'desc' ? 'asc' : 'desc';
+      } else {
+        querySort.col = th.dataset.sort;
+        querySort.dir = 'desc';
+      }
+      renderAllQueries();
+    });
+  });
+}
+
+/* === COMMON QUERIES VS COMPETITORS === */
+function renderCommonQueries() {
+  const arts = getArticles();
+  const articleIds = Object.values(arts);
+  const competitors = articleIds.filter(id => id !== OUR_ARTICLE);
+  const ordered = [OUR_ARTICLE, ...competitors];
+  const list = DATA.queries_all || [];
+
+  if (list.length === 0) {
+    document.getElementById('commonQueriesList').innerHTML = '<div class="insight-empty">Нет общих запросов в файле</div>';
+    return;
+  }
+
+  // HEADER: запрос | артикул1 (корз/заказ) | артикул2 ... | артикулN
+  let thead = '<thead>';
+  // Первая строка — артикулы с фото
+  thead += '<tr><th rowspan="2" style="text-align:left;min-width:200px;background:var(--bg-2)">Запрос</th>';
+  thead += '<th rowspan="2" style="text-align:right;min-width:90px;background:var(--bg-2)">Запросов</th>';
+  for (const id of ordered) {
+    const isOur = id === OUR_ARTICLE;
+    const photoUrl = wbPhotoUrl(id);
+    thead += `<th colspan="2" style="text-align:center;border-left:1px solid var(--border-soft);background:${isOur?'rgba(168,184,201,0.06)':'var(--bg-2)'};padding-bottom:8px">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+        <div style="width:36px;height:36px;border-radius:7px;background:var(--bg-3);overflow:hidden;display:flex;align-items:center;justify-content:center">
+          ${photoUrl ? `<img src="${photoUrl}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span style="display:none;font-size:14px">🏖️</span>` : '<span style="font-size:14px">🏖️</span>'}
+        </div>
+        <div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:11px;${isOur?'color:var(--accent-2)':'color:var(--text-1)'}">${id}</div>
+        ${isOur ? '<div style="font-size:9px;color:var(--accent-2);font-weight:700;text-transform:uppercase;letter-spacing:0.06em">наш</div>' : ''}
+      </div>
+    </th>`;
+  }
+  thead += '</tr>';
+  // Вторая строка — подзаголовки «корз / заказ»
+  thead += '<tr>';
+  for (const id of ordered) {
+    const isOur = id === OUR_ARTICLE;
+    const bg = isOur ? 'background:rgba(168,184,201,0.06);' : '';
+    thead += `<th style="text-align:right;border-left:1px solid var(--border-soft);${bg}font-size:10px;color:var(--text-3);padding:6px 10px">Корз</th>`;
+    thead += `<th style="text-align:right;${bg}font-size:10px;color:var(--text-3);padding:6px 10px">Заказ</th>`;
+  }
+  thead += '</tr></thead>';
+
+  // BODY
+  let tbody = '<tbody>';
+  for (const q of list) {
+    const cur = toNum(q.count_cur);
+    const prev = toNum(q.count_prev);
+    const dyn = (cur !== null && prev !== null && prev > 0) ? Math.round((cur - prev) / prev * 100) : null;
+    const dynClass = dyn === null ? 'neutral' : (dyn > 0 ? 'good' : (dyn < 0 ? 'bad' : 'neutral'));
+    const dynSign = dyn > 0 ? '+' : '';
+
+    // Лучшие значения в строке (для подсветки)
+    const cartVals = ordered.map(id => toNum(q.cart_cur[id])).filter(v => v !== null);
+    const orderVals = ordered.map(id => toNum(q.order_cur[id])).filter(v => v !== null);
+    const bestCart = cartVals.length ? Math.max(...cartVals) : null;
+    const bestOrder = orderVals.length ? Math.max(...orderVals) : null;
+
+    tbody += '<tr>';
+    // Запрос
+    tbody += `<td style="text-align:left">
+      <div class="query-text">${q.query}</div>
+    </td>`;
+    // Запросов + динамика
+    tbody += `<td style="text-align:right;font-family:'JetBrains Mono',monospace;font-weight:700">
+      ${fmtNum(cur)}
+      ${dyn !== null ? `<div style="margin-top:3px"><span class="diff ${dynClass}" style="margin:0">${dynSign}${dyn}%</span></div>` : ''}
+    </td>`;
+    // Артикулы
+    for (const id of ordered) {
+      const isOur = id === OUR_ARTICLE;
+      const c = toNum(q.cart_cur[id]);
+      const o = toNum(q.order_cur[id]);
+      const cartIsBest = c !== null && bestCart !== null && c === bestCart && cartVals.filter(v => v === bestCart).length === 1;
+      const orderIsBest = o !== null && bestOrder !== null && o === bestOrder && orderVals.filter(v => v === bestOrder).length === 1;
+      const bg = isOur ? 'background:rgba(168,184,201,0.06);' : '';
+      const cartColor = cartIsBest ? 'color:var(--good)' : (isOur ? 'color:var(--accent-2)' : 'color:var(--text-1)');
+      const orderColor = orderIsBest ? 'color:var(--good)' : (isOur ? 'color:var(--accent-2)' : 'color:var(--text-1)');
+      tbody += `<td style="text-align:right;border-left:1px solid var(--border-soft);${bg}font-family:'JetBrains Mono',monospace;font-weight:700;${cartColor}">${c !== null ? c + '%' : '—'}</td>`;
+      tbody += `<td style="text-align:right;${bg}font-family:'JetBrains Mono',monospace;font-weight:700;${orderColor}">${o !== null ? o + '%' : '—'}</td>`;
+    }
+    tbody += '</tr>';
+  }
+  tbody += '</tbody>';
+
+  document.getElementById('commonQueriesList').innerHTML = `
+    <div style="overflow-x:auto">
+      <table class="queries" style="min-width:760px;width:100%">
+        ${thead}
+        ${tbody}
+      </table>
+    </div>
+    <div style="font-size:11px;color:var(--text-3);margin-top:10px;font-style:italic">
+      Зелёным выделено наибольшее значение в строке. Наш артикул — подсвеченная колонка.
+    </div>
+  `;
+}
+
+/* === SEO BLOCK === */
+const SEO_STOP_WORDS = new Set([
+  'для','на','в','с','по','к','от','о','же','а','но','или','до','из','при','под','над','без',
+  'за','у','то','та','тот','это','эта','этот','что','как','так','же','ли','есть','уже',
+  'еще','ещё','очень','при','через','между','среди','около','около','против','можно','нужно',
+  'будет','быть','есть','нет','да','не','ни','же','бы','же','же'
+]);
+
+function renderSEO() {
+  // Собираю горячие запросы по всем артикулам
+  const allArtQueries = DATA.queries_by_article || {};
+  const hotQueries = [];
+  for (const artId in allArtQueries) {
+    for (const q of allArtQueries[artId]) {
+      const cnt = toNum(q.count_cur);
+      const cart = toNum(q.cart_cur);
+      if (cnt !== null && cnt >= 30 && cart !== null && cart >= 15) {
+        hotQueries.push({ q: q.query, cart, cnt, art: artId });
+      }
+    }
+  }
+
+  // Растущие запросы по нашему артикулу
+  const growingQueries = [];
+  const ourQ = allArtQueries[OUR_ARTICLE] || [];
+  for (const q of ourQ) {
+    const cur = toNum(q.count_cur) || 0;
+    const prev = toNum(q.count_prev) || 0;
+    if (prev >= 50 && cur > prev * 1.5) {
+      growingQueries.push(q.query);
+    }
+  }
+
+  // Разбиваю на слова
+  const wordFreq = {};       // частота упоминаний в горячих запросах
+  const wordMaxCR = {};      // максимальный CR корзина, где встретилось слово
+  const wordInGrowing = new Set();
+
+  for (const h of hotQueries) {
+    const words = h.q.toLowerCase().match(/[а-яёa-z]+/g) || [];
+    const seen = new Set(); // не считать дубликат внутри одного запроса
+    for (const w of words) {
+      if (SEO_STOP_WORDS.has(w)) continue;
+      if (w.length < 3) continue;
+      if (seen.has(w)) continue;
+      seen.add(w);
+      wordFreq[w] = (wordFreq[w] || 0) + 1;
+      if (!wordMaxCR[w] || h.cart > wordMaxCR[w]) wordMaxCR[w] = h.cart;
+    }
+  }
+  for (const q of growingQueries) {
+    const words = q.toLowerCase().match(/[а-яёa-z]+/g) || [];
+    const seen = new Set();
+    for (const w of words) {
+      if (SEO_STOP_WORDS.has(w)) continue;
+      if (w.length < 3) continue;
+      if (seen.has(w)) continue;
+      seen.add(w);
+      wordInGrowing.add(w);
+      wordFreq[w] = (wordFreq[w] || 0) + 1;
+    }
+  }
+
+  // Имя нашего артикула
+  const nameMetric = findMetric('Название');
+  const ourName = ((nameMetric && nameMetric.current[OUR_ARTICLE]) || '').toLowerCase();
+  const nameWords = new Set(ourName.match(/[а-яёa-z]+/g) || []);
+
+  // Сортируем по частоте
+  const sorted = Object.entries(wordFreq)
+    .filter(([w, f]) => f >= 1)
+    .sort((a, b) => b[1] - a[1]);
+
+  // Делим на «отсутствующие» и «уже в названии»
+  const missing = sorted.filter(([w]) => !nameWords.has(w));
+  const inName = sorted.filter(([w]) => nameWords.has(w));
+
+  // Рендер
+  let html = '';
+
+  // Статистика
+  html += `<div class="seo-stats">
+    <div class="seo-stat"><div class="label">Конвертящих запросов проанализировано</div><div class="value">${hotQueries.length}</div></div>
+    <div class="seo-stat"><div class="label">Растущих запросов учтено</div><div class="value">${growingQueries.length}</div></div>
+    <div class="seo-stat"><div class="label">Уникальных слов найдено</div><div class="value">${sorted.length}</div></div>
+    <div class="seo-stat"><div class="label">Не хватает в названии</div><div class="value bad">${missing.length}</div></div>
+  </div>`;
+
+  // Наше текущее название
+  html += `<div class="seo-current-name">
+    <div class="label">Текущее название нашей карточки</div>
+    <div class="name">${ourName || '—'}</div>
+  </div>`;
+
+  // Отсутствующие слова — главное
+  const missingWordsText = missing.map(([w]) => w).join(', ');
+  html += `<div class="seo-group">
+    <div class="seo-group-title">
+      🎯 SEO
+      <span class="badge">${missing.length}</span>
+      <button class="seo-copy-btn" id="seoCopyBtn" data-text="${missingWordsText.replace(/"/g, '&quot;')}">
+        📋 Скопировать все слова
+      </button>
+    </div>
+    <div class="seo-hint">Эти слова встречаются в самых конвертящих запросах, но их нет в названии нашей карточки. ↗ — слово также есть в растущих запросах. Нажмите «Скопировать», чтобы вставить в SEO-генератор.</div>
+    <div class="seo-cloud">
+      ${missing.map(([w, f]) => {
+        const cr = wordMaxCR[w] || 0;
+        const isGrowing = wordInGrowing.has(w);
+        return `<div class="seo-word missing">
+          ${w}
+          ${isGrowing ? '<span class="growing" title="есть в растущих запросах">↗</span>' : ''}
+          <span class="freq" title="упоминаний в конвертящих запросах">×${f}</span>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+
+  // Уже в названии
+  if (inName.length) {
+    html += `<div class="seo-group">
+      <div class="seo-group-title">
+        ✅ Уже в названии
+        <span class="badge">${inName.length}</span>
+      </div>
+      <div class="seo-cloud">
+        ${inName.map(([w, f]) => `<div class="seo-word in-name">${w}<span class="freq">×${f}</span></div>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  document.getElementById('seoBlock').innerHTML = html;
+
+  // Обработчик копирования
+  const copyBtn = document.getElementById('seoCopyBtn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', async () => {
+      const text = copyBtn.dataset.text || '';
+      try {
+        await navigator.clipboard.writeText(text);
+        const originalHtml = copyBtn.innerHTML;
+        copyBtn.classList.add('copied');
+        copyBtn.innerHTML = '✓ Скопировано';
+        setTimeout(() => {
+          copyBtn.classList.remove('copied');
+          copyBtn.innerHTML = originalHtml;
+        }, 1800);
+      } catch (e) {
+        // fallback для старых браузеров
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch (e) {}
+        document.body.removeChild(ta);
+        copyBtn.innerHTML = '✓ Скопировано';
+        setTimeout(() => { copyBtn.innerHTML = '📋 Скопировать все слова'; }, 1800);
+      }
+    });
+  }
+}
+
 function renderAll() {
   const arts = getArticles();
   OUR_ARTICLE = Object.values(arts)[0];
@@ -1030,6 +1493,9 @@ function renderAll() {
   renderAlerts();
   renderDynamics();
   renderInsights();
+  renderAllQueries();
+  renderCommonQueries();
+  renderSEO();
   renderMetricsTable();
   renderWarehouses();
   renderQueriesTabs();
@@ -1141,6 +1607,23 @@ function parseWorkbook(wb) {
   }
   return out;
 }
+
+document.querySelectorAll('.page-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.page-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const pageId = 'page' + btn.dataset.page.charAt(0).toUpperCase() + btn.dataset.page.slice(1);
+    const el = document.getElementById(pageId);
+    if (el) el.classList.add('active');
+    window.scrollTo(0, 0);
+  });
+});
+
+document.getElementById('queryFilter').addEventListener('input', e => {
+  queryFilter = e.target.value;
+  renderAllQueries();
+});
 
 renderAll();
 </script>
