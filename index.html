@@ -958,8 +958,12 @@ table.queries th:first-child, table.queries td:first-child { text-align: left; }
       <div class="section-header">
         <div>
           <div class="section-title"><span class="dot"></span>Сравнение по топ-запросам</div>
+          <div class="section-subtitle">Можно добавить позиции в поиске по запросам — загрузите файл "Позиции по запросам" (CSV) на каждый артикул</div>
         </div>
+        <button id="positionsUploadBtn" class="upload-btn" style="cursor:pointer">📍 Загрузить позиции по запросам</button>
+        <input type="file" id="positionsFileInput" accept=".csv" multiple style="display:none">
       </div>
+      <div id="positionsAssignList"></div>
       <div id="commonQueriesList"></div>
     </div>
 
@@ -1002,6 +1006,7 @@ let DATA = EMBEDDED_DATA;
 let currentPeriod = 'current';
 let OUR_ARTICLE = null;
 let activeQueryTab = 'all';
+let POSITIONS_DATA = {}; // { articleId: { queryLowercase: avgPositionLastWeek } }
 let econState = { margin: 20, drr: 10 };
 
 function wbPhotoUrls(nm) {
@@ -1883,6 +1888,121 @@ function renderAllQueries() {
   });
 }
 
+/* === POSITIONS BY QUERY (CSV upload, "Позиции по запросам" per article) === */
+function parsePositionsCSV(text) {
+  if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+  const lines = text.split(/\r?\n/).filter(l => l.trim().length);
+  if (!lines.length) return {};
+
+  function parseLine(line) {
+    const result = [];
+    let cur = '', inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (inQuotes) {
+        if (ch === '"') {
+          if (line[i + 1] === '"') { cur += '"'; i++; }
+          else inQuotes = false;
+        } else cur += ch;
+      } else {
+        if (ch === '"') inQuotes = true;
+        else if (ch === ';') { result.push(cur); cur = ''; }
+        else cur += ch;
+      }
+    }
+    result.push(cur);
+    return result;
+  }
+
+  const header = parseLine(lines[0]).map(h => h.trim());
+  const queryIdx = header.findIndex(h => h === 'Поисковый запрос');
+  if (queryIdx === -1) return {};
+
+  const dateCols = [];
+  header.forEach((h, idx) => {
+    const m = h.match(/^Позиция - (\d{2})\.(\d{2})\.(\d{4})$/);
+    if (m) dateCols.push({ idx, date: new Date(+m[3], +m[2] - 1, +m[1]) });
+  });
+  dateCols.sort((a, b) => a.date - b.date);
+  const lastWeek = dateCols.slice(-7); // средняя позиция за последнюю неделю
+
+  const positions = {};
+  for (let i = 1; i < lines.length; i++) {
+    const row = parseLine(lines[i]);
+    const query = (row[queryIdx] || '').trim().toLowerCase();
+    if (!query) continue;
+    const vals = lastWeek
+      .map(c => row[c.idx])
+      .map(v => (v && v.trim() !== '-' && v.trim() !== '') ? parseFloat(v.replace(',', '.')) : null)
+      .filter(v => v !== null && !isNaN(v));
+    if (vals.length) {
+      positions[query] = Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 10) / 10;
+    }
+  }
+  return positions;
+}
+
+let pendingPositionsFiles = []; // [{ name, positions }]
+
+document.getElementById('positionsUploadBtn').addEventListener('click', () => {
+  document.getElementById('positionsFileInput').click();
+});
+
+document.getElementById('positionsFileInput').addEventListener('change', async (e) => {
+  const files = Array.from(e.target.files || []);
+  if (!files.length) return;
+  pendingPositionsFiles = [];
+  for (const file of files) {
+    const text = await file.text();
+    const positions = parsePositionsCSV(text);
+    pendingPositionsFiles.push({ name: file.name, positions });
+  }
+  renderPositionsAssignList();
+  e.target.value = '';
+});
+
+function renderPositionsAssignList() {
+  const container = document.getElementById('positionsAssignList');
+  if (!pendingPositionsFiles.length) {
+    container.innerHTML = '';
+    return;
+  }
+  const arts = getArticles();
+  const articleIds = Object.values(arts);
+  const optionsHtml = articleIds.map(id =>
+    `<option value="${id}">${id}${id === OUR_ARTICLE ? ' (наш)' : ''}</option>`
+  ).join('');
+
+  container.innerHTML = `
+    <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px">
+      <div style="font-size:12px;color:var(--text-2);margin-bottom:10px">Укажите, какому артикулу соответствует каждый загруженный файл с позициями:</div>
+      ${pendingPositionsFiles.map((f, i) => `
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <div style="flex:1;font-size:12px;color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${f.name}">${f.name}</div>
+          <select data-file-idx="${i}" class="positions-art-select" style="background:var(--bg-3);border:1px solid var(--border);border-radius:8px;color:var(--text-1);padding:6px 10px;font-family:inherit;font-size:12px">
+            <option value="">— выбрать артикул —</option>
+            ${optionsHtml}
+          </select>
+        </div>
+      `).join('')}
+      <button id="positionsApplyBtn" class="upload-btn" style="cursor:pointer;margin-top:6px">Сохранить позиции</button>
+    </div>`;
+
+  document.getElementById('positionsApplyBtn').addEventListener('click', () => {
+    const selects = container.querySelectorAll('.positions-art-select');
+    selects.forEach(sel => {
+      const idx = +sel.dataset.fileIdx;
+      const articleId = sel.value;
+      if (articleId) {
+        POSITIONS_DATA[articleId] = pendingPositionsFiles[idx].positions;
+      }
+    });
+    pendingPositionsFiles = [];
+    container.innerHTML = '';
+    renderCommonQueries();
+  });
+}
+
 /* === COMMON QUERIES VS COMPETITORS === */
 function renderCommonQueries() {
   const arts = getArticles();
@@ -1901,10 +2021,11 @@ function renderCommonQueries() {
   // Первая строка — артикулы с фото
   thead += '<tr><th rowspan="2" style="text-align:left;min-width:200px;background:var(--bg-2)">Запрос</th>';
   thead += '<th rowspan="2" style="text-align:right;min-width:90px;background:var(--bg-2)">Запросов</th>';
+  const hasPositions = Object.keys(POSITIONS_DATA).length > 0;
   for (const id of ordered) {
     const isOur = id === OUR_ARTICLE;
     const photoUrl = wbPhotoUrl(id);
-    thead += `<th colspan="2" style="text-align:center;border-left:1px solid var(--border-soft);background:${isOur?'rgba(168,184,201,0.06)':'var(--bg-2)'};padding-bottom:8px">
+    thead += `<th colspan="${hasPositions ? 3 : 2}" style="text-align:center;border-left:1px solid var(--border-soft);background:${isOur?'rgba(168,184,201,0.06)':'var(--bg-2)'};padding-bottom:8px">
       <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
         <div style="width:36px;height:36px;border-radius:7px;background:var(--bg-3);overflow:hidden;display:flex;align-items:center;justify-content:center">
           ${photoUrl ? `<img src="${photoUrl}" style="width:100%;height:100%;object-fit:cover" onerror="window.__wbPhotoFallback(this, '${id}')"><span style="display:none;font-size:14px">🏖️</span>` : '<span style="font-size:14px">🏖️</span>'}
@@ -1915,13 +2036,16 @@ function renderCommonQueries() {
     </th>`;
   }
   thead += '</tr>';
-  // Вторая строка — подзаголовки «корз / заказ»
+  // Вторая строка — подзаголовки «корз / заказ / поз.»
   thead += '<tr>';
   for (const id of ordered) {
     const isOur = id === OUR_ARTICLE;
     const bg = isOur ? 'background:rgba(168,184,201,0.06);' : '';
     thead += `<th style="text-align:right;border-left:1px solid var(--border-soft);${bg}font-size:10px;color:var(--text-3);padding:6px 10px">Корз</th>`;
     thead += `<th style="text-align:right;${bg}font-size:10px;color:var(--text-3);padding:6px 10px">Заказ</th>`;
+    if (hasPositions) {
+      thead += `<th style="text-align:right;${bg}font-size:10px;color:var(--text-3);padding:6px 10px">Поз.</th>`;
+    }
   }
   thead += '</tr></thead>';
 
@@ -1939,6 +2063,9 @@ function renderCommonQueries() {
     const orderVals = ordered.map(id => toNum(q.order_cur[id])).filter(v => v !== null);
     const bestCart = cartVals.length ? Math.max(...cartVals) : null;
     const bestOrder = orderVals.length ? Math.max(...orderVals) : null;
+    const queryLower = q.query.toLowerCase();
+    const posVals = ordered.map(id => (POSITIONS_DATA[id] || {})[queryLower]).filter(v => v !== undefined && v !== null);
+    const bestPos = posVals.length ? Math.min(...posVals) : null;
 
     tbody += '<tr>';
     // Запрос
@@ -1962,6 +2089,12 @@ function renderCommonQueries() {
       const orderColor = orderIsBest ? 'color:var(--good)' : (isOur ? 'color:var(--accent-2)' : 'color:var(--text-1)');
       tbody += `<td style="text-align:right;border-left:1px solid var(--border-soft);${bg}font-family:'JetBrains Mono',monospace;font-weight:700;${cartColor}">${c !== null ? c + '%' : '—'}</td>`;
       tbody += `<td style="text-align:right;${bg}font-family:'JetBrains Mono',monospace;font-weight:700;${orderColor}">${o !== null ? o + '%' : '—'}</td>`;
+      if (hasPositions) {
+        const p = (POSITIONS_DATA[id] || {})[queryLower];
+        const posIsBest = p !== undefined && p !== null && bestPos !== null && p === bestPos && posVals.filter(v => v === bestPos).length === 1;
+        const posColor = posIsBest ? 'color:var(--good)' : (isOur ? 'color:var(--accent-2)' : 'color:var(--text-1)');
+        tbody += `<td style="text-align:right;${bg}font-family:'JetBrains Mono',monospace;font-weight:700;${posColor}">${p !== undefined && p !== null ? p : '—'}</td>`;
+      }
     }
     tbody += '</tr>';
   }
@@ -1975,7 +2108,7 @@ function renderCommonQueries() {
       </table>
     </div>
     <div style="font-size:11px;color:var(--text-3);margin-top:10px;font-style:italic">
-      Зелёным выделено наибольшее значение в строке. Наш артикул — подсвеченная колонка.
+      Зелёным выделено наибольшее значение CR в строке${hasPositions ? ' и ближайшая (лучшая) позиция в поиске' : ''}. Наш артикул — подсвеченная колонка.${hasPositions ? ' Позиция — среднее за последнюю неделю из загруженного файла.' : ''}
     </div>
   `;
 }
